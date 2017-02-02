@@ -1,0 +1,11 @@
+{
+  "name": "wt-website",
+  "version": "1.0.0",
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "https://bumblebot@bitbucket.org/Lostcomb/wt-website.git"
+  },
+  "author": "Julian Lostcomb & Raul Mihoc",
+  "license": "ISC"
+}
