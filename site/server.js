@@ -22,7 +22,7 @@ start(8080);
 function start(port) {
     types = defineTypes();
     banned = [];
-    banUpperCase("./public/", "");
+    banUpperCase("./site/public/", "");
     var service = http.createServer(handle);
     service.listen(port, "localhost");
     var address = "http://localhost";
@@ -37,7 +37,7 @@ function handle(request, response) {
     if (isBanned(url)) return fail(response, NotFound, "URL has been banned");
     var type = findType(url);
     if (type == null) return fail(response, BadType, "File type unsupported");
-    var file = "./public" + url;
+    var file = "./site/public" + url;
     fs.readFile(file, ready);
     function ready(err, content) { deliver(response, type, err, content); }
 }

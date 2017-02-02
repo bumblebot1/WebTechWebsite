@@ -2,10 +2,18 @@
   "name": "wt-website",
   "version": "1.0.0",
   "description": "",
+  "scripts": {
+    "run": "gulp run"
+  },
   "repository": {
     "type": "git",
     "url": "https://bumblebot@bitbucket.org/Lostcomb/wt-website.git"
   },
   "author": "Julian Loscombe & Raul Mihoc",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-cli": "^1.2.2",
+    "gulp-nodemon": "^2.2.1"
+  }
 }
