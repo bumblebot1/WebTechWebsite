@@ -4,19 +4,27 @@
   <head>
     <meta charset="UTF-8"/>
     <title>English Draughts</title>
+    <link type="text/css" rel="stylesheet" href="styles/style.css"/>
+    <script type="text/javascript" src="scripts/colour.js"></script>
+    <script type="text/javascript" src="scripts/piece.js"></script>
+    <script type="text/javascript" src="scripts/move.js"></script>
+    <script type="text/javascript" src="scripts/player.js"></script>
+    <script type="text/javascript" src="scripts/model.js"></script>
   </head>
   <body>
-    <div id="header">
-      <img>
+    <header>
+      <img src="resources/logo.png"/>
       <h1>English Draughts</h1>
 
-      <h2 id="time_remaining"></h2>
-      <button>Leave Game</button>
-      <button>Logout</button>
-    </div>
+      <span>
+        <h2 id="time_remaining">01:43</h2>
+        <button>Leave Game</button>
+        <button>Logout</button>
+      </span>
+    </header>
 
-    <div id="content">
-      <div id="sidebar">
+    <main>
+      <aside>
 
         <div class="message">
           <span>
@@ -26,11 +34,11 @@
           <p>Message here.</p>
         </div>
 
-      </div>
+      </aside>
       <div id="board_view">
-        <canvas> <!-- WebGL here -->
-        <div id="player">It's your turn!</div>
+        <canvas></canvas> <!-- WebGL here -->
+        <footer id="player">It's your turn!</footer>
       </div>
-    </div>
+    </main>
   </body>
 </html>
