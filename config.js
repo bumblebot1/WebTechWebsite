@@ -1,5 +1,5 @@
-var clientSrc = __dirname + '/site/public/scripts';
-var serverSrc = __dirname + '/site/server';
+var clientSrc = 'site/public/scripts';
+var serverSrc = 'site/server';
 
 module.exports = {
   server:{
