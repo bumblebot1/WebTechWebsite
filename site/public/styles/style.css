@@ -41,7 +41,7 @@ header h2 {
   flex-basis: content;
 }
 
-header button {
+input, header button {
   height: 48px;
   color: white;
   background-color: #1F1F1F;
@@ -52,12 +52,25 @@ header button {
   flex-basis: content;
 }
 
-header button:hover {
+input:hover, header button:hover {
   background-color: #2E2E2E;
 }
 
-header button:active {
+input:active, header button:active {
   background-color: #454545;
+}
+
+input[type="submit"] {
+  padding: 8px;
+  margin: 6px;
+  height: 36px;
+}
+
+input[type="text"] {
+  flex-grow: 1;
+  height: 36px;
+  padding: 4px;
+  margin: 0px;
 }
 
 main {
@@ -68,15 +81,81 @@ main {
 }
 
 main > div {
+  display: flex;
+  flex-direction: column;
   flex: 3 1 70%;
   order: 2;
   background-color: #442244;
 }
 
 main > aside {
+  display: flex;
+  flex-direction: column;
   background-color: #555555;
   flex: 1 6 30%;
   order: 1;
+}
+
+ul {
+  list-style-type: none;
+  padding: 8px 16px 8px 40px;
+  margin: 0px;
+  overflow-y: scroll;
+  color: #FFFFFF;
+}
+
+li {
+  position: relative;
+}
+
+li:before {
+  content: "";
+  position: absolute;
+  top: 22px;
+  left: -26px;
+  width: 12px;
+  height: 12px;
+  border: 0px solid;
+  border-radius: 50%;
+  background-color: #442244;
+}
+
+li > span {
+  display: block;
+  border-bottom: 2px solid #FFFFFF;
+}
+
+li > span * {
+  display: inline-block;
+}
+
+li > span h4 {
+  float: right;
+}
+
+ul, canvas {
+  flex-grow: 1;
+}
+
+form, footer {
+  height: 48px;
+  background-color: #5F9EA0;
+  text-align: center;
+}
+
+footer {
+  width: 100%;
+  display: table;
+}
+
+footer p {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+form {
+  display: flex;
+  flex-direction: row;
 }
 
 @media all and (max-width: 640px) {

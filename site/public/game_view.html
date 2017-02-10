@@ -22,19 +22,33 @@
 
     <main>
       <aside>
+        <ul id="message_log">
+          <li>
+            <span>
+              <h3>UserName</h3>
+              <h4>TimeStamp</h4>
+            </span>
+            <p>Message here.</p>
+          </li>
+          <li>
+            <span>
+              <h3>UserName</h3>
+              <h4>TimeStamp</h4>
+            </span>
+            <p>Message here.</p>
+          </li>
+        </ul>
 
-        <div class="message">
-          <span>
-            <h3>UserName</h3>
-            <h4>TimeStamp</h4>
-          </span>
-          <p>Message here.</p>
-        </div>
-
+        <form>
+          <input type="text" required="required" placeholder="Message..."></input>
+          <input type="submit" value="Send"></input>
+        </form>
       </aside>
       <div id="board_view">
         <canvas></canvas> <!-- WebGL here -->
-        <footer id="player">It's your turn!</footer>
+        <footer id="player">
+          <p>It's your turn!</p>
+        </footer>
       </div>
     </main>
   </body>
