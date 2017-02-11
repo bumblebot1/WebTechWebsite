@@ -1,14 +1,28 @@
+/** Colour Palette:
+ * Red :- #A72030
+ * Green :- #257060
+ * White :- #B8CCD6
+ * Header/Footer :- #1F1F1F
+ * Header/Footer :hover :- #2E2E2E
+ * Header/Footer :active :- #454545
+ * Message Log :- #171717
+ * Text Input :- #2E2E2E
+ * Text :- #FFFFFF
+ */
+
 html, body {
   width: 100%;
   height: 100%;
   margin: 0px;
   padding: 0px;
-  font-family: sans-serif;
+  color: #FFFFFF;
+  background-color: #1F1F1F;
+  font-family: "Quicksand", sans-serif;
 }
 
+/** Header Styling **/
 header {
   width: calc(100% - 8px);
-  color: white;
   background-color: #1F1F1F;
   position: relative;
   display: inline-flex;
@@ -41,22 +55,140 @@ header h2 {
   flex-basis: content;
 }
 
-input, header button {
+/** Main Styling (all content under heading) **/
+main {
+  display: flex;
+  flex-flow: row;
+  width: 100%;
+  height: calc(100% - 64px);
+}
+
+/** Section Styling (canvas and player turn indicator) **/
+section {
+  display: flex;
+  flex-direction: column;
+  flex: 3 1 70%;
+  order: 2;
+  background-color: #442244;
+}
+
+canvas {
+  flex-grow: 1;
+}
+
+footer {
   height: 48px;
-  color: white;
+  background-color: #1F1F1F;
+  text-align: center;
+  font-size: 1.25em;
+}
+
+footer {
+  width: 100%;
+  display: table;
+}
+
+footer.local:before {
+  content: "It's your turn!";
+}
+
+footer.remote:before {
+  content: "It's your opponents turn!";
+}
+
+footer:before {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+footer.red {
+  background-color: #A72030;
+}
+
+footer.white {
+  background-color: #B8CCD6;
+}
+
+/** Aside Styling (message log and message input) **/
+aside {
+  display: flex;
+  flex-direction: column;
+  background-color: #171717;
+  flex: 1 6 30%;
+  order: 1;
+}
+
+ul {
+  flex-grow: 1;
+  list-style-type: none;
+  padding: 8px 16px 8px 40px;
+  margin: 0px;
+  overflow-y: scroll;
+}
+
+li {
+  position: relative;
+}
+
+li:before {
+  content: "";
+  position: absolute;
+  top: 24px;
+  left: -24px;
+  width: 12px;
+  height: 12px;
+  border: 0px solid;
+  border-radius: 50%;
+  background-color: #442244;
+}
+
+li span {
+  display: block;
+  border-bottom: 2px solid #B8CCD6;
+}
+
+li span * {
+  display: inline-block;
+}
+
+li span h3:nth-child(2) {
+  float: right;
+}
+
+form {
+  height: 48px;
+  background-color: #1F1F1F;
+  text-align: center;
+  font-size: 1.25em;
+}
+
+form {
+  display: flex;
+  flex-direction: row;
+}
+
+/** Input and Button Styling **/
+input,
+button {
+  height: 48px;
+  color: inherit;
   background-color: #1F1F1F;
   border: 2px solid #2E2E2E;
   border-radius: 2px;
   margin: 4px;
   padding: 8px;
   flex-basis: content;
+  font-family: inherit;
 }
 
-input:hover, header button:hover {
+input[type="submit"]:hover,
+header button:hover {
   background-color: #2E2E2E;
 }
 
-input:active, header button:active {
+input[type="text"]:hover,
+input[type="submit"]:active,
+header button:active {
   background-color: #454545;
 }
 
@@ -69,105 +201,24 @@ input[type="submit"] {
 input[type="text"] {
   flex-grow: 1;
   height: 36px;
-  padding: 4px;
+  padding: 6px;
   margin: 0px;
+  border: none;
+  font-size: 1.25em;
+  background-color: #2E2E2E;
 }
 
-main {
-  display: flex;
-  flex-flow: row;
-  width: 100%;
-  height: calc(100% - 64px);
-}
-
-main > div {
-  display: flex;
-  flex-direction: column;
-  flex: 3 1 70%;
-  order: 2;
-  background-color: #442244;
-}
-
-main > aside {
-  display: flex;
-  flex-direction: column;
-  background-color: #555555;
-  flex: 1 6 30%;
-  order: 1;
-}
-
-ul {
-  list-style-type: none;
-  padding: 8px 16px 8px 40px;
-  margin: 0px;
-  overflow-y: scroll;
-  color: #FFFFFF;
-}
-
-li {
-  position: relative;
-}
-
-li:before {
-  content: "";
-  position: absolute;
-  top: 22px;
-  left: -26px;
-  width: 12px;
-  height: 12px;
-  border: 0px solid;
-  border-radius: 50%;
-  background-color: #442244;
-}
-
-li > span {
-  display: block;
-  border-bottom: 2px solid #FFFFFF;
-}
-
-li > span * {
-  display: inline-block;
-}
-
-li > span h4 {
-  float: right;
-}
-
-ul, canvas {
-  flex-grow: 1;
-}
-
-form, footer {
-  height: 48px;
-  background-color: #5F9EA0;
-  text-align: center;
-}
-
-footer {
-  width: 100%;
-  display: table;
-}
-
-footer p {
-  display: table-cell;
-  vertical-align: middle;
-}
-
-form {
-  display: flex;
-  flex-direction: row;
-}
-
+/** Main Responsive Styling **/
 @media all and (max-width: 640px) {
   main {
     flex-direction: column;
   }
 
-  main > div {
+  section {
     order: 1;
   }
 
-  main > aside {
+  aside {
     order: 2;
   }
 }

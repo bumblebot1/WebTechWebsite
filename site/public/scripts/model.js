@@ -12,17 +12,9 @@
  * @param whitePlayer the Player object for the white player.
  */
 var Model = function (redPlayer, whitePlayer) {
-  this.players = {
-    "red"   : redPlayer,
-    "white" : whitePlayer
-  };
-  this.currentPlayer = Colour["red"];
-  this.pieces = initialisePieces();
-  this.gameOver = false;
-
   // This function returns the list of Pieces defining the starting
   // state of the game.
-  var initialisePieces = function () {
+  var initializePieces = function () {
     var pieces = [];
     for (var i = 0; i < 3; i++) {
       for (var j = 1; j < 8; j += 2) {
@@ -36,6 +28,14 @@ var Model = function (redPlayer, whitePlayer) {
     }
     return pieces;
   };
+
+  this.players = {
+    "red"   : redPlayer,
+    "white" : whitePlayer
+  };
+  this.currentPlayer = Colour["red"];
+  this.pieces = initializePieces();
+  this.gameOver = false;
 };
 
 /**
