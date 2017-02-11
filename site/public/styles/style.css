@@ -139,7 +139,14 @@ li:before {
   height: 12px;
   border: 0px solid;
   border-radius: 50%;
-  background-color: #442244;
+}
+
+li.red:before {
+  background-color: #A72030;
+}
+
+li.white:before {
+  background-color: #B8CCD6;
 }
 
 li span {

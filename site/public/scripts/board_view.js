@@ -11,6 +11,7 @@
  * @param canvas the canvas to draw to.
  */
 var BoardView = function (model, canvas) {
+  var self = this;
   this.minPadding = 0.05;
   this.n_cols = 8;
   this.n_rows = 8;
@@ -22,6 +23,12 @@ var BoardView = function (model, canvas) {
   this.model = model;
   this.canvas = canvas;
   this.context = canvas.getContext("2d");
+
+  window.addEventListener("resize", function () {
+    self.canvas.width = 0;
+    self.canvas.height = 0;
+    self.draw();
+  });
 };
 
 /**
@@ -30,7 +37,6 @@ var BoardView = function (model, canvas) {
 BoardView.prototype.clear = function () {
   this.canvas.width = this.canvas.offsetWidth;
   this.canvas.height = this.canvas.offsetHeight;
-  this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 };
 
 /**
