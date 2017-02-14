@@ -69,7 +69,7 @@ section {
   flex-direction: column;
   flex: 3 1 70%;
   order: 2;
-  background-color: #442244;
+  background-color: #303949;
 }
 
 canvas {
@@ -96,16 +96,22 @@ footer.remote:before {
   content: "It's your opponents turn!";
 }
 
+footer.game_over:before {
+  content: "Game Over!";
+}
+
 footer:before {
   display: table-cell;
   vertical-align: middle;
 }
 
 footer.red {
+  color: #FFFFFF;
   background-color: #A72030;
 }
 
 footer.white {
+  color: #000000;
   background-color: #B8CCD6;
 }
 
