@@ -1,11 +1,59 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-  lang="en-GB" xml:lang="en-GB">
-<head>
-<meta charset="UTF-8"/>
-<title>Test Page</title>
-</head>
-<body>
-<h2>Test Heading</h2>
-</body>
+    lang="en-GB" xml:lang="en-GB">
+  <head>
+    <meta charset="UTF-8"/>
+    <title>English draughts</title>
+    <meta name="google-signin-client_id" content="845935205653-dl6ulvl06lsmqhshbbf122nc6vducvaf.apps.googleusercontent.com"/>
+    <link href="https://fonts.googleapis.com/css?family=Quicksand" type="text/css" rel="stylesheet"/>
+    <link href="styles/i_style.css" type="text/css" rel="stylesheet"/>
+  </head>
+  <body>
+    <section>
+      <img src="resources/logo.png"/>
+      <h1>English draughts</h1>
+      <!--Login here-->
+      <script type="text/javascript">
+        function onSignIn(googleUser) {
+          var profile = googleUser.getBasicProfile();
+          console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+          console.log('Name: ' + profile.getName());
+          console.log('Image URL: ' + profile.getImageUrl());
+          console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+        }
+      </script>
+      <div class="g-signin2" data-onsuccess="onSignIn"></div>
+      <script type="text/javascript" src="https://apis.google.com/js/platform.js" async="async" defer="defer"></script>
+      <span>
+        <button>Local Game</button>
+        <button>Find Remote Game</button>
+      </span>
+   </section>
+
+    <table id="leaderboard">
+      <tr>
+        <th>Rank</th>
+        <th>Username</th>
+        <th>Score</th>
+      </tr>
+
+      <tr>
+        <td>1</td>
+        <td>Raul</td>
+        <td>1000000</td>
+      </tr>
+
+      <tr>
+        <td>2</td>
+        <td>Raul</td>
+        <td>999999</td>
+      </tr>
+
+      <tr>
+        <td>3</td>
+        <td>Raul</td>
+        <td>99999</td>
+      </tr>
+    </table>
+  </body>
 </html>

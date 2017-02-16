@@ -10,8 +10,9 @@
  *
  * @param message_log the element which contains the messages.
  */
-var MessageView = function (message_log) {
+var MessageView = function (message_log, message_form) {
   this.message_log = message_log;
+  this.message_form = message_form;
 };
 
 /**
