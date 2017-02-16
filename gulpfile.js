@@ -18,9 +18,8 @@ var browser = os.platform() === 'linux' ? 'google-chrome' : (
 gulp.task('start', startServer);
 
 gulp.task('test:server', testServer);
-gulp.task('test:client', testClient);
 
-function startServer(){
+function startServer() {
   var exec = 'node';
 
   nodemon({
@@ -32,10 +31,10 @@ function startServer(){
       .pipe(open({app: browser, uri: config.server.address}));
 }
 
-function testServer(){
+function testServer() {
   var testFiles = config.serverTests.testFiles;
   var serverFiles = config.serverTests.allFiles;
-  
+
   //run the tests for the server
   gulp.src(testFiles)
       .pipe(jasmine({
@@ -44,25 +43,6 @@ function testServer(){
 
   //watch all server files for changes and rerun tests
   gulp.watch(serverFiles, function () {
-    gulp.src(testFiles)
-      .pipe(jasmine({
-          reporter: new SpecReporter()
-      }));
-  });
-}
-
-function testClient(){
-  var testFiles = config.clientTests.testFiles;
-  var clientFiles = config.clientTests.allFiles;
-
-  //run client tests
-  gulp.src(testFiles)
-      .pipe(jasmine({
-          reporter: new SpecReporter()
-      }));
-
-  //watch all client side js files and rerun tests
-  gulp.watch(clientFiles, function () {
     gulp.src(testFiles)
       .pipe(jasmine({
           reporter: new SpecReporter()

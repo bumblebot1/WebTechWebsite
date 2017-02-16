@@ -76,10 +76,10 @@ Model.prototype.play = function (move) {
   // top of the board and are now king pieces.
   var checkForKing = function () {
     for (var i = 0; i < self.pieces.length; i++) {
-      if ((self.pieces[i].colour == Colour["red"] &&
-           self.pieces[i].y == 0)
-       || (self.pieces[i].colour == Colour["white"] &&
-           self.pieces[i].y == 7)) {
+      if ((self.pieces[i].colour === Colour["red"] &&
+           self.pieces[i].y === 0)
+       || (self.pieces[i].colour === Colour["white"] &&
+           self.pieces[i].y === 7)) {
         self.pieces[i].king = true;
       }
     }
@@ -87,14 +87,14 @@ Model.prototype.play = function (move) {
   // This function returns true if the player has jumped onto their
   // opponents kings row and they are not already a king.
   var jumpOntoKing = function (piece) {
-    return (piece.colour == Colour["red"]   && piece.y == 0 && !piece.king)
-        || (piece.colour == Colour["white"] && piece.y == 7 && !piece.king);
+    return (piece.colour === Colour["red"]   && piece.y === 0 && !piece.king)
+        || (piece.colour === Colour["white"] && piece.y === 7 && !piece.king);
   };
   // This function removes a piece that has been jumped over, returns
   // true in this case.
   var removePiece = function (x1, y1, x2, y2) {
     var x = x2 - x1, y = y2 - y1;
-    if (x % 2 == 0) {
+    if (x % 2 === 0) {
       var piece = self.getPiece(x1 + (x / 2), y1 + (y / 2));
       var index = self.pieces.indexOf(piece);
       if (index > -1) self.pieces.splice(index, 1);
@@ -104,13 +104,13 @@ Model.prototype.play = function (move) {
   };
   // This function sets the next player.
   var nextPlayer = function () {
-    if (self.currentPlayer == Colour["red"]) self.currentPlayer = Colour["white"];
+    if (self.currentPlayer === Colour["red"]) self.currentPlayer = Colour["white"];
     else self.currentPlayer = Colour["red"];
   };
 
   var old_x, old_y;
   for (var i = 0; i < this.pieces.length; i++) {
-    if (this.pieces[i] == move.piece) {
+    if (this.pieces[i] === move.piece) {
       old_x = this.pieces[i].x;
       old_y = this.pieces[i].y;
       this.pieces[i].x = move.x;
@@ -141,7 +141,7 @@ Model.prototype.play = function (move) {
 Model.prototype.validMoves = function (colour) {
   var moves = [];
   for (var i = 0; i < this.pieces.length; i++) {
-    if (this.pieces[i].colour == colour) {
+    if (this.pieces[i].colour === colour) {
       if (this.pieces[i].king)
         moves = moves.concat(this.pieceValidMoves(colour, this.pieces[i], -1, false));
       moves = moves.concat(this.pieceValidMoves(colour, this.pieces[i], 1, false));
@@ -174,7 +174,7 @@ Model.prototype.pieceValidMoves = function (colour, piece, yOffset, jumpOnly) {
              y > 7);
   };
 
-  if (colour == Colour["red"]) yOffset = -yOffset;
+  if (colour === Colour["red"]) yOffset = -yOffset;
   if (!jumpOnly) {
     if (isEmpty(piece.x - 1, piece.y + yOffset))
       moves.push(new Move(piece, piece.x - 1, piece.y + yOffset));
@@ -205,7 +205,7 @@ Model.prototype.pieceValidMoves = function (colour, piece, yOffset, jumpOnly) {
  */
 Model.prototype.getPiece = function (x, y) {
   for (var i = 0; i < this.pieces.length; i++) {
-    if (this.pieces[i].x == x && this.pieces[i].y == y)
+    if (this.pieces[i].x === x && this.pieces[i].y === y)
       return this.pieces[i];
   }
   return null;
@@ -218,10 +218,10 @@ Model.prototype.getPiece = function (x, y) {
  * @return true if the game is over.
  */
 Model.prototype.isGameOver = function () {
-  var red_lost   = this.validMoves(Colour["red"]).length == 0 &&
-                  this.currentPlayer == Colour["red"];
-  var white_lost = this.validMoves(Colour["white"]).length == 0 &&
-                  this.currentPlayer == Colour["white"];
+  var red_lost   = this.validMoves(Colour["red"]).length === 0 &&
+                  this.currentPlayer === Colour["red"];
+  var white_lost = this.validMoves(Colour["white"]).length === 0 &&
+                  this.currentPlayer === Colour["white"];
 
   if (red_lost) this.winningPlayer = Colour["white"];
   if (white_lost) this.winningPlayer = Colour["red"];
