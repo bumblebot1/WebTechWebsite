@@ -1,6 +1,6 @@
 describe("database tests", () => {
   var DatabaseManager = require("../database-manager");
-  var manager = new DatabaseManager("./site/server/test/test.db");
+  var manager = new DatabaseManager("site/server/test/test.db");
   beforeAll((done) =>{
     manager.deleteAllEntries(done);
   });

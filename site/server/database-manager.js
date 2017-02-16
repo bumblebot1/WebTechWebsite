@@ -26,6 +26,8 @@ DatabaseManager.prototype.getAllData = function(callback) {
  * This inserts the data for one user into the database.
  * 
  * @param user which should have the form {"Token_ID":string, "Name": string, "Score":Integer}
+ * @param callback only used in testing is a function which 
+ * takes as parameter a boolean (true if query succeded false otherwise)
  * @return true if object is of correct form and query is run or false if object misses some property 
  */
 DatabaseManager.prototype.insertUser = function(user, callback) {
