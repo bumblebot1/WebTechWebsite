@@ -1,9 +1,11 @@
 var gulp = require('gulp');
 var nodemon = require('nodemon');
 var watch = require('gulp-watch');
-var jasmineBrowser = require('gulp-jasmine-browser');
+var jasmine = require('gulp-jasmine');
 var os = require('os');
 var open = require('gulp-open');
+var SpecReporter = require('jasmine-spec-reporter').SpecReporter;
+
 
 //parameters for starting server and tests
 var config = require('./config.js')
@@ -31,21 +33,39 @@ function startServer(){
 }
 
 function testServer(){
-  var testFiles = config.serverTests.files;
+  var testFiles = config.serverTests.testFiles;
+  var serverFiles = config.serverTests.allFiles;
+  
+  //run the tests for the server
   gulp.src(testFiles)
-      .pipe(watch(testFiles))
-      .pipe(jasmineBrowser.specRunner())
-      .pipe(jasmineBrowser.server({port: config.serverTests.port}));
-  gulp.src('')
-      .pipe(open({app: browser, uri: config.serverTests.address}));
+      .pipe(jasmine({
+          reporter: new SpecReporter()
+      }));
+
+  //watch all server files for changes and rerun tests
+  gulp.watch(serverFiles, function () {
+    gulp.src(testFiles)
+      .pipe(jasmine({
+          reporter: new SpecReporter()
+      }));
+  });
 }
 
 function testClient(){
-  var testFiles = config.clientTests.files
+  var testFiles = config.clientTests.testFiles;
+  var clientFiles = config.clientTests.allFiles;
+
+  //run client tests
   gulp.src(testFiles)
-      .pipe(watch(testFiles))
-      .pipe(jasmineBrowser.specRunner())
-      .pipe(jasmineBrowser.server({port: config.clientTests.port}));
-  gulp.src('')
-      .pipe(open({app: browser, uri: config.clientTests.address}));
+      .pipe(jasmine({
+          reporter: new SpecReporter()
+      }));
+
+  //watch all client side js files and rerun tests
+  gulp.watch(clientFiles, function () {
+    gulp.src(testFiles)
+      .pipe(jasmine({
+          reporter: new SpecReporter()
+      }));
+  });
 }
