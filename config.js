@@ -8,12 +8,14 @@ module.exports = {
     address: 'http://localhost:8080'
   },
   clientTests:{
-    files: [clientSrc + '/**/*.spec.js'],
+    testFiles: [clientSrc + '/**/test/*.spec.js'],
+    allFiles: [clientSrc + '/**/*.js'],
     port: 8888,
     address: 'http://localhost:8888'
   },
   serverTests: {
-    files: [serverSrc + '/**/*.spec.js'],
+    testFiles: [serverSrc + '/**/test/*.spec.js'],
+    allFiles: [serverSrc + '/**/*.js'],
     port: 8889,
     address: 'http://localhost:8889'
   }
