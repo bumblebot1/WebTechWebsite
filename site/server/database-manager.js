@@ -1,3 +1,5 @@
+'use strict';
+
 var sql = require("sqlite3");
 
 /**
@@ -6,7 +8,7 @@ var sql = require("sqlite3");
  * 
  * @param path to the database file
  */
-var DatabaseManager = function (name) {  
+var DatabaseManager = function(name) {  
   this.db = new sql.Database(name);
 }
 
@@ -26,23 +28,39 @@ DatabaseManager.prototype.getAllData = function(callback) {
  * This inserts the data for one user into the database.
  * 
  * @param user which should have the form {"Token_ID":string, "Name": string, "Score":Integer}
- * @param callback only used in testing is a function which 
- * takes as parameter a boolean (true if query succeded false otherwise)
- * @return true if object is of correct form and query is run or false if object misses some property 
+ * @param callback to be called after the insertion happens has been added to aid in testing
+ *  
  */
 DatabaseManager.prototype.insertUser = function(user, callback) {
-  if(!("Token_ID" in user)) {
-    return false;
-  } else if (!("Name" in user)) {
-    return false;
-  } else if (!("Score" in user)) {
-    return false;
-  } else {
-    var stmt = this.db.prepare("INSERT INTO leaderboard VALUES (?, ?, ?)", callback.bind(null, true));
-    stmt.run(user["Token_ID"], user["Name"], user["Score"]);
-    stmt.finalize();
-    return true;
-  }
+  var stmt = this.db.prepare("INSERT INTO leaderboard VALUES (?, ?, ?)");
+  stmt.run(user["Token_ID"], user["Name"], user["Score"], callback);
+  stmt.finalize();
+}
+
+/**
+ * This function selects all users with the given Token_ID from the database.
+ * 
+ * @param Token_ID representing the Token_ID of the user to be searched
+ * @param callback to be called on the list of users returned by the query
+ *        (should be only one since Token_ID is primary key)
+ */
+DatabaseManager.prototype.getUserWithTokenID = function(Token_ID, callback) {
+  var stmt = this.db.prepare("SELECT * FROM leaderboard WHERE Token_ID = ?");
+  stmt.all(Token_ID, callback);
+  stmt.finalize();
+}
+
+/**
+ * This updates the score of a user in the table.
+ * 
+ * @param Token_ID of the user to be updated
+ * @param value of the new score must be a number
+ * @param callback to be called after the query executes
+ */
+DatabaseManager.prototype.updateScore = function(Token_ID, value, callback) {
+  var stmt = this.db.prepare("UPDATE leaderboard SET Score = ? WHERE Token_ID = ?");
+  stmt.run(value, Token_ID, callback);
+  stmt.finalize();
 }
 
 /**

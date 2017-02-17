@@ -14,9 +14,10 @@
 
 var http = require("http");
 var fs = require("fs");
+var config = require("../../config.js");
 var OK = 200, NotFound = 404, BadType = 415, Error = 500;
 var types, banned;
-start(8080);
+start(config.server.port);
 
 // Start the http service.  Accept only requests from localhost, for security.
 function start(port) {
