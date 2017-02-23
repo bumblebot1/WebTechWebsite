@@ -8,4 +8,3 @@
 6. Implement a server to store the leaderboard.
 7. Implement login page which should display the leaderboard,
    the login button, then local play or remote play.
-8. Implement timer for moves.

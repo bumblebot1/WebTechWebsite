@@ -20,3 +20,7 @@ var Message = function (colour, username, timestamp, body, type) {
   this.body = body;
   this.type = type;
 };
+
+var MessageType = {
+  "text": "text"
+};

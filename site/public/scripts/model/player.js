@@ -17,11 +17,15 @@ var Player = function () {};
  * @param message_view     the view to display game messages.
  * @param player_indicator the element which displays the
  *                         current player.
+ * @param timer_view       the view to display the time left per move.
+ * @param messenger        the messenger with which to send messages.
  */
-var LocalPlayer = function (message_view, player_indicator) {
+var LocalPlayer = function (message_view, player_indicator, timer_view, messenger) {
   this.moveProvider = null;
   this.message_view = message_view;
   this.player_indicator = player_indicator;
+  this.timer_view = timer_view;
+  this.messenger = messenger;
 };
 
 LocalPlayer.prototype = Object.create(Player.prototype);
@@ -35,9 +39,19 @@ LocalPlayer.prototype.constructor = LocalPlayer;
  * @param model      the game model object.
  */
 LocalPlayer.prototype.notify = function (validMoves, model) {
+  var timeOutListener = function () {
+    model.gameOver = true;
+    if (model.currentPlayer == Colour["red"]) model.winningPlayer = Colour["white"];
+    else model.winningPlayer = Colour["red"];
+    model.play(null);
+  };
+
   // Display the current player.
   this.player_indicator.className = "";
   this.player_indicator.classList.add("local", model.currentPlayer);
+
+  this.timer_view.registerListener(timeOutListener);
+  this.timer_view.start(model.time_limit);
 
   var self = this;
   var listener = function (move) {
@@ -52,6 +66,8 @@ LocalPlayer.prototype.notify = function (validMoves, model) {
           timestamp: new Date().toLocaleString(),
           body: messageBody(move)
         });
+        self.timer_view.deregisterListener(timeOutListener);
+        self.timer_view.reset(model.time_limit);
         model.play(move);
       }
     }
@@ -81,10 +97,14 @@ LocalPlayer.prototype.notify = function (validMoves, model) {
  * @param message_view     the view to display game messages.
  * @param player_indicator the element which displays the
  *                         current player.
+ * @param timer_view       the view to display the time left per move.
+ * @param messenger        the messenger with which to send messages.
  */
-var RemotePlayer = function (message_view, player_indicator) {
+var RemotePlayer = function (message_view, player_indicator, timer_view, messenger) {
   this.message_view = message_view;
   this.player_indicator = player_indicator;
+  this.timer_view = timer_view;
+  this.messenger = messenger;
 };
 
 RemotePlayer.prototype = Object.create(Player.prototype);
@@ -98,7 +118,20 @@ RemotePlayer.prototype.constructor = RemotePlayer;
  * @param model      the game model object.
  */
 RemotePlayer.prototype.notify = function (validMoves, model) {
+  var timeOutListener = function () {
+    model.gameOver = true;
+    if (model.currentPlayer == Colour["red"]) model.winningPlayer = Colour["white"];
+    else model.winningPlayer = Colour["red"];
+    model.play(null);
+  };
+
   // Display the current player.
   this.player_indicator.className = "";
   this.player_indicator.classList.add("remote", model.currentPlayer);
+
+  this.timer_view.registerListener(timeOutListener);
+  this.timer_view.start(model.time_limit);
+
+  // When play move, call: self.timer_view.deregisterListener(timeOutListener);
+  //                       self.timer_view.reset(model.time_limit);
 };

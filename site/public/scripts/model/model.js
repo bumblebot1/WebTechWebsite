@@ -12,8 +12,9 @@
  * @param whitePlayer      the Player object for the white player.
  * @param player_indicator the element which displays whose turn it is
  *                         and whether the game is over.
+ * @param messenger        the messenger with which to send messages.
  */
-var Model = function (redPlayer, whitePlayer, player_indicator) {
+var Model = function (redPlayer, whitePlayer, player_indicator, messenger) {
   // This function returns the list of Pieces defining the starting
   // state of the game.
   var initializePieces = function () {
@@ -40,7 +41,8 @@ var Model = function (redPlayer, whitePlayer, player_indicator) {
   this.gameOver = false;
   this.winningPlayer = "";
   this.player_indicator = player_indicator;
-  this.time_limit = 6000;
+  this.messenger = messenger;
+  this.time_limit = 60000;
 };
 
 /**
@@ -52,6 +54,7 @@ Model.prototype.turn = function () {
   } else {
     this.player_indicator.className = "";
     this.player_indicator.classList.add("game_over", this.winningPlayer);
+    //TODO: Send game over message via messenger.
   }
 };
 
