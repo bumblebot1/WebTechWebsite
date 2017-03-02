@@ -1,10 +1,20 @@
 var serverSrc = 'site/server';
 
 module.exports = {
-  server:{
+  server: {
     src: serverSrc + '/server.js',
-    port: 8080, //at the moment this is hardcoded into server but will be passed as parameter TODO
-    address: 'http://localhost:8080'
+    http_port: 8080,
+    https_port: 443,
+    http_address: 'http://localhost:8080',
+    https_address: 'http://localhost:443'
+  },
+  matchmaker: {
+    port: 3001,
+    address: 'http://localhost:3001'
+  },
+  router: {
+    port: 3002,
+    address: 'http://localhost:3002'
   },
   serverTests: {
     testFiles: [serverSrc + '/**/test/*.spec.js'],

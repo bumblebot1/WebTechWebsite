@@ -8,28 +8,25 @@
     <meta name="google-signin-client_id" content="845935205653-dl6ulvl06lsmqhshbbf122nc6vducvaf.apps.googleusercontent.com"/>
     <link href="https://fonts.googleapis.com/css?family=Quicksand" type="text/css" rel="stylesheet"/>
     <link href="styles/i_style.css" type="text/css" rel="stylesheet"/>
+    <script src="https://apis.google.com/js/platform.js" async="async" defer="defer"></script>
   </head>
   <body>
     <section>
       <img src="resources/logo.png"/>
       <h1>English draughts</h1>
       <!--Login here-->
-      <script type="text/javascript">
-        function onSignIn(googleUser) {
-          var profile = googleUser.getBasicProfile();
-          console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
-          console.log('Name: ' + profile.getName());
-          console.log('Image URL: ' + profile.getImageUrl());
-          console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+      <script>
+        function onSignIn () {
+          console.log("called");
         }
       </script>
-      <div class="g-signin2" data-onsuccess="onSignIn"></div>
-      <script type="text/javascript" src="https://apis.google.com/js/platform.js" async="async" defer="defer"></script>
+      <div class="g-signin2" data-onsuccess="onSignIn" data-longtitle="true"></div>
       <span>
         <button>Local Game</button>
         <button>Find Remote Game</button>
+        <button>Logout</button>
       </span>
-   </section>
+    </section>
 
     <table id="leaderboard">
       <tr>
@@ -41,19 +38,19 @@
       <tr>
         <td>1</td>
         <td>Raul</td>
-        <td>1000000</td>
+        <td>1000.000</td>
       </tr>
 
       <tr>
         <td>2</td>
         <td>Raul</td>
-        <td>999999</td>
+        <td>999.999</td>
       </tr>
 
       <tr>
         <td>3</td>
         <td>Raul</td>
-        <td>99999</td>
+        <td>99.999</td>
       </tr>
     </table>
   </body>

@@ -13,22 +13,28 @@
 // privilege issues and port number 80 isn't already in use.
 
 var http = require("http");
+var https = require("https");
 var fs = require("fs");
 var config = require("../../config.js");
 var OK = 200, NotFound = 404, BadType = 415, Error = 500;
 var types, banned;
-start(config.server.port);
+
+/*var options = {
+    key: fs.readFileSync('ssl_certs/key.pem'),
+    cert: fs.readFileSync('ssl_certs/cert.pem')
+};*/
+
+start(config.server.http_port, config.server.https_port);
 
 // Start the http service.  Accept only requests from localhost, for security.
-function start(port) {
+function start(http_port, https_port) {
     types = defineTypes();
     banned = [];
     banUpperCase("./site/public/", "");
-    var service = http.createServer(handle);
-    service.listen(port, "localhost");
-    var address = "http://localhost";
-    if (port != 80) address = address + ":" + port;
-    console.log("Server running at", address);
+    http.createServer(handle).listen(http_port, "localhost");
+    // https.createServer(options, handle).listen(https_port, "localhost");
+    console.log("Server running at", config.server.http_address);
+    // console.log("Server running at", config.server.https_address);
 }
 
 // Serve a request by delivering a file.
@@ -104,7 +110,8 @@ function banUpperCase(root, folder) {
 // the mime module and adapt the list it provides.
 function defineTypes() {
     var types = {
-        html : "application/xhtml+xml",
+        //html : "application/xhtml+xml",
+        html : "text/html",
         css  : "text/css",
         js   : "application/javascript",
         png  : "image/png",

@@ -28,7 +28,7 @@ function startServer() {
   });
 
   gulp.src('')
-      .pipe(open({app: browser, uri: config.server.address}));
+      .pipe(open({app: browser, uri: config.server.http_address}));
 }
 
 function testServer() {

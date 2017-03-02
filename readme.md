@@ -8,3 +8,7 @@
 6. Implement a server to store the leaderboard.
 7. Implement login page which should display the leaderboard,
    the login button, then local play or remote play.
+
+## SSL Certificate: ##
+
+Generated using this guide: https://docs.nodejitsu.com/articles/HTTP/servers/how-to-create-a-HTTPS-server/
