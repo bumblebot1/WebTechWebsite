@@ -60,12 +60,7 @@ LocalPlayer.prototype.notify = function (validMoves, model) {
           validMoves[i].x     == move.x     &&
           validMoves[i].y     == move.y       ) {
         self.moveProvider.deregisterMoveListener(listener);
-        self.message_view.append({
-          colour: model.currentPlayer,
-          username: model.currentPlayer,
-          timestamp: new Date().toLocaleString(),
-          body: messageBody(move)
-        });
+        self.message_view.append(new MessageMessage(model.currentPlayer, messageBody(move)));
         self.timer_view.deregisterListener(timeOutListener);
         self.timer_view.reset(model.time_limit);
         model.play(move);

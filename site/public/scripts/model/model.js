@@ -13,8 +13,9 @@
  * @param player_indicator the element which displays whose turn it is
  *                         and whether the game is over.
  * @param messenger        the messenger with which to send messages.
+ * @param users            the list of users who are playing the game.
  */
-var Model = function (redPlayer, whitePlayer, player_indicator, messenger) {
+var Model = function (redPlayer, whitePlayer, player_indicator, messenger, users) {
   // This function returns the list of Pieces defining the starting
   // state of the game.
   var initializePieces = function () {
@@ -36,10 +37,19 @@ var Model = function (redPlayer, whitePlayer, player_indicator, messenger) {
     "red"   : redPlayer,
     "white" : whitePlayer
   };
-  this.currentPlayer = Colour["red"];
+  this.users = {};
+  for (var i = 0; i < users.length; i++) {
+    if (users[i].colour === Colour["red"]) {
+      this.users[Colour["red"]] = users[i];
+      this.currentPlayer = users[i];
+    } else {
+      this.users[Colour["white"]] = users[i];
+    }
+  }
+
   this.pieces = initializePieces();
   this.gameOver = false;
-  this.winningPlayer = "";
+  this.winningPlayer = null;
   this.player_indicator = player_indicator;
   this.messenger = messenger;
   this.time_limit = 60000;
@@ -53,7 +63,7 @@ Model.prototype.turn = function () {
     this.getPlayerMove(this.validMoves(this.currentPlayer));
   } else {
     this.player_indicator.className = "";
-    this.player_indicator.classList.add("game_over", this.winningPlayer);
+    this.player_indicator.classList.add("game_over", this.winningPlayer.colour);
     //TODO: Send game over message via messenger.
   }
 };
@@ -64,7 +74,7 @@ Model.prototype.turn = function () {
  * @param moves the list of valid moves the player can make.
  */
 Model.prototype.getPlayerMove = function (moves) {
-  this.players[this.currentPlayer].notify(moves, this);
+  this.players[this.currentPlayer.colour].notify(moves, this);
 };
 
 /**
@@ -107,8 +117,8 @@ Model.prototype.play = function (move) {
   };
   // This function sets the next player.
   var nextPlayer = function () {
-    if (self.currentPlayer === Colour["red"]) self.currentPlayer = Colour["white"];
-    else self.currentPlayer = Colour["red"];
+    if (self.currentPlayer.colour === Colour["red"]) self.currentPlayer = self.users[Colour["white"]];
+    else self.currentPlayer = self.users[Colour["red"]];
   };
 
   var old_x, old_y;
@@ -123,9 +133,9 @@ Model.prototype.play = function (move) {
   var jump = removePiece(old_x, old_y, move.x, move.y);
   var newKing = jumpOntoKing(move.piece);
   checkForKing();
-  var moves = this.pieceValidMoves(this.currentPlayer, move.piece, 1, true);
+  var moves = this.pieceValidMoves(this.currentPlayer.colour, move.piece, 1, true);
   if (move.piece.king)
-    moves = moves.concat(this.pieceValidMoves(this.currentPlayer, move.piece, -1, true));
+    moves = moves.concat(this.pieceValidMoves(this.currentPlayer.colour, move.piece, -1, true));
   if (jump && moves.length > 0 && !newKing) {
     this.getPlayerMove(moves);
   } else {
@@ -222,12 +232,12 @@ Model.prototype.getPiece = function (x, y) {
  */
 Model.prototype.isGameOver = function () {
   var red_lost   = this.validMoves(Colour["red"]).length === 0 &&
-                  this.currentPlayer === Colour["red"];
+                   this.currentPlayer.colour === Colour["red"];
   var white_lost = this.validMoves(Colour["white"]).length === 0 &&
-                  this.currentPlayer === Colour["white"];
+                   this.currentPlayer.colour === Colour["white"];
 
-  if (red_lost) this.winningPlayer = Colour["white"];
-  if (white_lost) this.winningPlayer = Colour["red"];
+  if (red_lost) this.winningPlayer = this.users[Colour["white"]];
+  if (white_lost) this.winningPlayer = this.users[Colour["red"]];
 
   return this.gameOver || red_lost || white_lost;
 };
