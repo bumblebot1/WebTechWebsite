@@ -19,10 +19,10 @@ var config = require("../../config.js");
 var OK = 200, NotFound = 404, BadType = 415, Error = 500;
 var types, banned;
 
-/*var options = {
-    key: fs.readFileSync('ssl_certs/key.pem'),
-    cert: fs.readFileSync('ssl_certs/cert.pem')
-};*/
+var options = {
+    key: fs.readFileSync('site/server/ssl_certs/key.pem'),
+    cert: fs.readFileSync('site/server/ssl_certs/cert.pem')
+};
 
 start(config.server.http_port, config.server.https_port);
 
@@ -32,9 +32,9 @@ function start(http_port, https_port) {
     banned = [];
     banUpperCase("./site/public/", "");
     http.createServer(handle).listen(http_port, "localhost");
-    // https.createServer(options, handle).listen(https_port, "localhost");
+    https.createServer(options, handle).listen(https_port, "localhost");
     console.log("Server running at", config.server.http_address);
-    // console.log("Server running at", config.server.https_address);
+    console.log("Server running at", config.server.https_address);
 }
 
 // Serve a request by delivering a file.
