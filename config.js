@@ -9,10 +9,14 @@ module.exports = {
     https_address: 'http://localhost:443'
   },
   matchmaker: {
+    host: 'localhost',
     port: 3001,
-    address: 'http://localhost:3001'
+    address: 'http://localhost:3001',
+    elo_k: 15,
+    round_time: 20000
   },
   router: {
+    host: 'localhost',
     port: 3002,
     address: 'http://localhost:3002'
   },
