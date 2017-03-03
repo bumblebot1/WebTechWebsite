@@ -48,7 +48,7 @@ LocalPlayer.prototype.notify = function (validMoves, model) {
 
   // Display the current player.
   this.player_indicator.className = "";
-  this.player_indicator.classList.add("local", model.currentPlayer);
+  this.player_indicator.classList.add("local", model.currentPlayer.colour);
 
   this.timer_view.registerListener(timeOutListener);
   this.timer_view.start(model.time_limit);

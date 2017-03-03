@@ -139,15 +139,17 @@ var MessageGameOver = function (id, winner, loser) {
   this.loser = loser;
 };
 
-module.exports = {
-  MessageType: MessageType,
-  MessageLeaderboard: MessageLeaderboard,
-  MessageRequestGame: MessageRequestGame,
-  MessageRegisterRouter: MessageRegisterRouter,
-  MessageGame: MessageGame,
-  MessageReady: MessageReady,
-  MessageStartGame: MessageStartGame,
-  MessageMove: MessageMove,
-  MessageMessage: MessageMessage,
-  MessageGameOver: MessageGameOver
-};
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+  module.exports = {
+    MessageType: MessageType,
+    MessageLeaderboard: MessageLeaderboard,
+    MessageRequestGame: MessageRequestGame,
+    MessageRegisterRouter: MessageRegisterRouter,
+    MessageGame: MessageGame,
+    MessageReady: MessageReady,
+    MessageStartGame: MessageStartGame,
+    MessageMove: MessageMove,
+    MessageMessage: MessageMessage,
+    MessageGameOver: MessageGameOver
+  };
+}
