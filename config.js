@@ -9,6 +9,7 @@ module.exports = {
     https_address: 'http://localhost:443'
   },
   matchmaker: {
+    src: 'site/server/matchmaker.js',
     host: 'localhost',
     port: 3001,
     address: 'http://localhost:3001',
@@ -16,6 +17,7 @@ module.exports = {
     round_time: 20000
   },
   router: {
+    src: 'site/server/router.js',
     host: 'localhost',
     port: 3002,
     address: 'http://localhost:3002'

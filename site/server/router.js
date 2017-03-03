@@ -9,6 +9,8 @@ var router = new WebSocket("ws://" + config.matchmaker.host + ":" + config.match
 var router_server = new WebSocket.Server({
   host: config.router.host,
   port: config.router.port
+}, function () {
+  console.log("Router running at", config.router.address);
 });
 
 router_server.on("connection", function (ws) {

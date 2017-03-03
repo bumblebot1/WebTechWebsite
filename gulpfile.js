@@ -16,6 +16,8 @@ var browser = os.platform() === 'linux' ? 'google-chrome' : (
               os.platform() === 'win32' ? 'chrome' : 'firefox'));
 
 gulp.task('start', startServer);
+gulp.task('start:matchmaker', startMatchmaker);
+gulp.task('start:router', startRouter);
 
 gulp.task('test:server', testServer);
 
@@ -29,6 +31,24 @@ function startServer() {
 
   gulp.src('')
       .pipe(open({app: browser, uri: config.server.http_address}));
+}
+
+function startMatchmaker() {
+  var exec = 'node';
+
+  nodemon({
+      script: config.matchmaker.src,
+      exec: exec
+  });
+}
+
+function startRouter() {
+  var exec = 'node';
+
+  nodemon({
+      script: config.router.src,
+      exec: exec
+  });
 }
 
 function testServer() {

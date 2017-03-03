@@ -11,6 +11,8 @@ var waiting_players = [];
 var matchmaker_server = new WebSocket.Server({
   host: "localhost",
   port: config.matchmaker.port
+}, function () {
+  console.log("Matchmaker running at", config.matchmaker.address);
 });
 
 matchmaker_server.on("connection", function (ws) {
