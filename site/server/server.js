@@ -32,9 +32,11 @@ function start(http_port, https_port) {
     banned = [];
     banUpperCase("./site/public/", "");
     http.createServer(handle).listen(http_port, "localhost");
-    https.createServer(options, handle).listen(https_port, "localhost");
     console.log("Server running at", config.server.http_address);
-    console.log("Server running at", config.server.https_address);
+    if (config.use_https) {
+      https.createServer(options, handle).listen(https_port, "localhost");
+      console.log("Server running at", config.server.https_address);
+    }
 }
 
 // Serve a request by delivering a file.

@@ -16,8 +16,9 @@ var MessageType = {
  * This file defines the valid messages that can be sent to the matchmaker and router servers.
  */
 
-var Message = {
-  timestamp: new Date().toLocaleString()
+var Message = function (type) {
+  this.timestamp = new Date().toLocaleString();
+  this.type = type;
 };
 
 /**
@@ -26,8 +27,7 @@ var Message = {
  * @param leaderboard the list of players and associated scores to display.
  */
 var MessageLeaderboard = function (leaderboard) {
-  Object.assign(Message, this);
-  this.type = MessageType["leaderboard"];
+  Message.call(this, MessageType["leaderboard"]);
   if (leaderboard) this.leaderboard = leaderboard;
   else this.leaderboard = [];
 };
@@ -38,8 +38,7 @@ var MessageLeaderboard = function (leaderboard) {
  * @param player the player who is requesting the game.
  */
 var MessageRequestGame = function (player) {
-  Object.assign(Message, this);
-  this.type = MessageType["request_game"];
+  Message.call(this, MessageType["request_game"]);
   this.player = player;
 };
 
@@ -49,8 +48,7 @@ var MessageRequestGame = function (player) {
  * @param address the address used to connect to the router.
  */
 var MessageRegisterRouter = function (address) {
-  Object.assign(Message, this);
-  this.type = MessageType["register_router"];
+  Message.call(this, MessageType["register_router"]);
   this.address = address;
 };
 
@@ -64,8 +62,7 @@ var MessageRegisterRouter = function (address) {
  * @param router          the router to send messages to.
  */
 var MessageGame = function (id, players, round_time, router) {
-  Object.assign(Message, this);
-  this.type = MessageType["game"];
+  Message.call(this, MessageType["game"]);
   this.id = id;
   this.players = players;
   this.round_time = round_time;
@@ -79,8 +76,7 @@ var MessageGame = function (id, players, round_time, router) {
  * @param player the player who is ready.
  */
 var MessageReady = function (id, player) {
-  Object.assign(Message, this);
-  this.type = MessageType["ready"];
+  Message.call(this, MessageType["ready"]);
   this.id = id;
   this.player = player;
 };
@@ -91,8 +87,7 @@ var MessageReady = function (id, player) {
  * @param id the id of the game.
  */
 var MessageStartGame = function (id) {
-  Object.assign(Message, this);
-  this.type = MessageType["start_game"];
+  Message.call(this, MessageType["start_game"]);
   this.id = id;
 };
 
@@ -103,8 +98,7 @@ var MessageStartGame = function (id) {
  * @param move the move that has been played.
  */
 var MessageMove = function (id, move) {
-  Object.assign(Message, this);
-  this.type = MessageType["move"];
+  Message.call(this, MessageType["move"]);
   this.id = id;
   this.move = move;
 };
@@ -117,8 +111,7 @@ var MessageMove = function (id, move) {
  * @param body   the body of the message as a string.
  */
 var MessageMessage = function (id, player, body) {
-  Object.assign(Message, this);
-  this.type = MessageType["message"];
+  Message.call(this, MessageType["message"]);
   this.id = id;
   this.player = player;
   this.body = body;
@@ -132,8 +125,7 @@ var MessageMessage = function (id, player, body) {
  * @param loser  the player who has lost the game.
  */
 var MessageGameOver = function (id, winner, loser) {
-  Object.assign(Message, this);
-  this.type = MessageType["game_over"];
+  Message.call(this, MessageType["game_over"]);
   this.id = id;
   this.winner = winner;
   this.loser = loser;

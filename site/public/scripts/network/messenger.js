@@ -15,6 +15,13 @@ var Messenger = function () {
 };
 
 /**
+ * This method closes the connection.
+ */
+Messenger.prototype.close = function () {
+  //TODO;
+};
+
+/**
  * This method sends a message.
  *
  * @param message the message to send.

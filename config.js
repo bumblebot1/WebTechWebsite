@@ -2,6 +2,7 @@ var serverSrc = 'site/server';
 
 module.exports = {
   debug: true,
+  use_https: false,
   server: {
     src: serverSrc + '/server.js',
     http_port: 8080,

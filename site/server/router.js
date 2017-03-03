@@ -62,6 +62,20 @@ router_server.on("connection", function (ws) {
       if (config.debug) console.log("Message is not valid JSON:", e);
     }
   });
+
+  ws.on("close", function () {
+    var keys = Object.keys(games);
+    for (var i = 0; i < keys.length; i++) {
+      var players = games[keys[i]].players;
+
+      for (var j = 0; j < players.length; j++) {
+        if (players[j].ws === ws) {
+          var message = new Message.MessageGameOver(keys[i], players[j + 1 % players.length], players[j]);
+          handleMessageGameOver(ws, message);
+        }
+      }
+    }
+  });
 });
 
 /**

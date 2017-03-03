@@ -9,22 +9,22 @@
     <link href="https://fonts.googleapis.com/css?family=Quicksand" type="text/css" rel="stylesheet"/>
     <link href="styles/i_style.css" type="text/css" rel="stylesheet"/>
     <script src="https://apis.google.com/js/platform.js" async="async" defer="defer"></script>
+    <script type="text/javascript" src="scripts/model/colour.js"></script>
+    <script type="text/javascript" src="scripts/view/leaderboard_view.js"></script>
+    <script type="text/javascript" src="scripts/network/message.js"></script>
+    <script type="text/javascript" src="scripts/network/messenger.js"></script>
+    <script type="text/javascript" src="scripts/i_main.js"></script>
   </head>
   <body>
     <section>
       <img src="resources/logo.png"/>
       <h1>English draughts</h1>
-      <!--Login here-->
-      <script>
-        function onSignIn () {
-          console.log("called");
-        }
-      </script>
-      <div class="g-signin2" data-onsuccess="onSignIn" data-longtitle="true"></div>
-      <span>
-        <button>Local Game</button>
-        <button>Find Remote Game</button>
-        <button>Logout</button>
+      <!-- Google Login Button -->
+      <div class="g-signin2" data-onsuccess="logged_in" data-longtitle="true"></div>
+      <span id="buttons" class="disabled">
+        <button id="local">Local Game</button>
+        <button id="remote">Find Remote Game</button>
+        <button id="logout">Logout</button>
       </span>
     </section>
 
@@ -33,24 +33,6 @@
         <th>Rank</th>
         <th>Username</th>
         <th>Score</th>
-      </tr>
-
-      <tr>
-        <td>1</td>
-        <td>Raul</td>
-        <td>1000.000</td>
-      </tr>
-
-      <tr>
-        <td>2</td>
-        <td>Raul</td>
-        <td>999.999</td>
-      </tr>
-
-      <tr>
-        <td>3</td>
-        <td>Raul</td>
-        <td>99.999</td>
       </tr>
     </table>
   </body>
