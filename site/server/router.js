@@ -1,10 +1,32 @@
 var WebSocket = require("ws");
 var config = require("../../config.js");
-var Message = require("message.js");
+var Message = require("../public/scripts/network/message.js");
 
 var games = {};
 
 var router = new WebSocket("ws://" + config.matchmaker.host + ":" + config.matchmaker.port);
+
+router.on("open", function () {
+  router.send(JSON.stringify(new Message.MessageRegisterRouter(config.router.address)));
+});
+
+router.on("message", function (message_str, flags) {
+  if (flags.binary) return;
+  try {
+    var message = JSON.parse(message_str);
+    switch (message.type) {
+      case Message.MessageType["game"]:
+        if (config.debug) console.log("Game:", message);
+        handleMessageGame(router, message);
+        break;
+      default:
+        if (config.debug) console.log("Router received invalid message:", message);
+        break;
+    }
+  } catch (e) {
+    if (config.debug) console.log("Message is not valid JSON:", e);
+  }
+});
 
 var router_server = new WebSocket.Server({
   host: config.router.host,
@@ -19,25 +41,25 @@ router_server.on("connection", function (ws) {
     try {
       var message = JSON.parse(message_str);
       switch (message.type) {
-        case Message.MessageType["game"]:
-          handleMessageGame(ws, message);
-          break;
         case Message.MessageType["ready"]:
+          if (config.debug) console.log("Ready:", message);
           handleMessageReady(ws, message);
           break;
         case Message.MessageType["move"]:
         case Message.MessageType["message"]:
+          if (config.debug) console.log("Move/Message:", message);
           handleMessagePassThrough(ws, message);
           break;
         case Message.MessageType["game_over"]:
+          if (config.debug) console.log("Game over:", message);
           handleMessageGameOver(ws, message);
           break;
         default:
-          console.log("Router received invalid message:", message);
+          if (config.debug) console.log("Router server received invalid message:", message);
           break;
       }
     } catch (e) {
-      console.log("Message is not valid JSON:", e);
+      if (config.debug) console.log("Message is not valid JSON:", e);
     }
   });
 });

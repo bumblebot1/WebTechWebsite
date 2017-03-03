@@ -138,3 +138,16 @@ var MessageGameOver = function (id, winner, loser) {
   this.winner = winner;
   this.loser = loser;
 };
+
+module.exports = {
+  MessageType: MessageType,
+  MessageLeaderboard: MessageLeaderboard,
+  MessageRequestGame: MessageRequestGame,
+  MessageRegisterRouter: MessageRegisterRouter,
+  MessageGame: MessageGame,
+  MessageReady: MessageReady,
+  MessageStartGame: MessageStartGame,
+  MessageMove: MessageMove,
+  MessageMessage: MessageMessage,
+  MessageGameOver: MessageGameOver
+};

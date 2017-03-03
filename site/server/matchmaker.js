@@ -1,7 +1,7 @@
 var WebSocket = require("ws");
 var config = require("../../config.js");
-var Message = require("message.js");
-var DatabaseManager = require("database-manager.js");
+var Message = require("../public/scripts/network/message.js");
+var DatabaseManager = require("./database-manager.js");
 var DBManager = new DatabaseManager("site/server/leaderboard.db");
 
 var routers = {};
@@ -22,23 +22,47 @@ matchmaker_server.on("connection", function (ws) {
       var message = JSON.parse(message_str);
       switch (message.type) {
         case Message.MessageType["leaderboard"]:
+          if (config.debug) console.log("Leaderboard:", message);
           handleMessageLeaderboard(ws, message);
           break;
         case Message.MessageType["request_game"]:
+          if (config.debug) console.log("Request game:", message);
           handleMessageRequestGame(ws, message);
           break;
         case Message.MessageType["register_router"]:
+          if (config.debug) console.log("Register router:", message);
           handleMessageRegisterRouter(ws, message);
           break;
         case Message.MessageType["game_over"]:
+          if (config.debug) console.log("Game over:", message);
           handleMessageGameOver(ws, message);
           break;
         default:
-          console.log("Matchmaker received invalid message:", message);
+          if (config.debug) console.log("Matchmaker received invalid message:", message);
           break;
       }
     } catch (e) {
-      console.log("Message is not valid JSON:", e);
+      if (config.debug) console.log("Message is not valid JSON:", e);
+    }
+  });
+
+  ws.on("close", function () {
+    var keys = Object.keys(routers);
+    for (var i = 0; i < keys.length; i++) {
+      if (routers[keys[i]].ws === ws) {
+        if (config.debug) console.log("Router at address", keys[i], "closed.");
+        routers[keys[i]] = undefined;
+      }
+    }
+
+    var i = 0;
+    while (i < waiting_players.length) {
+      if (waiting_players[i].ws === ws) {
+        if (config.debug) console.log("Player", waiting_players[i].player, "closed.");
+        waiting_players.splice(i, 1);
+      } else {
+        i++;
+      }
     }
   });
 });
@@ -123,7 +147,8 @@ var handleMessageGameOver = function (ws, message) {
  * This function checks for a game match.
  */
 var checkForMatch = function () {
-  if (routers.keys.length <= 0) return;
+  var keys = Object.keys(routers);
+  if (keys.length <= 0) return;
   while (waiting_players.length >= 2) {
     var router_server = getRouter();
 
@@ -152,14 +177,15 @@ var checkForMatch = function () {
  * @return the router serving the fewest games.
  */
 var getRouter = function () {
-  if (routers.keys.length < 1) return;
-  var router = routers[routers.keys[0]];
-  router.address = routers.keys[0];
+  var keys = Object.keys(routers);
+  if (keys.length < 1) return;
+  var router = routers[keys[0]];
+  router.address = keys[0];
 
-  for (var i = 1; i < routers.keys.length; i++) {
-    if (routers[routers.keys[i]].game_count < router.game_count) {
-      router = routers[routers.keys[i]];
-      router.address = routers.keys[i];
+  for (var i = 1; i < keys.length; i++) {
+    if (routers[keys[i]].game_count < router.game_count) {
+      router = routers[keys[i]];
+      router.address = keys[i];
     }
   }
 
