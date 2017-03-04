@@ -8,32 +8,12 @@
 /**
  * This constructs a new MessageView object.
  *
- * @param message_log the element which contains the messages.
+ * @param message_log  the element which contains the messages.
+ * @param users        the users in the game.
  */
-var MessageView = function (message_log, message_form, messenger) {
-  var self = this;
+var MessageView = function (message_log, users) {
   this.message_log = message_log;
-  this.message_form = message_form;
-  this.messenger = messenger;
-
-  var input = message_form.querySelector("input[type='text']");
-  var submit = message_form.querySelector("input[type='submit']");
-  submit.addEventListener("click", function (event) {
-    var message = {
-      colour: window.localStorage.getItem("player_colour"),
-      username: window.localStorage.getItem("player_username"),
-      timestamp: new Date().toLocaleString(),
-      body: input.value,
-      type: MessageType["text"]
-    };
-
-    messenger.send(message);
-    self.append(message);
-
-    input.value = "";
-    event.preventDefault();
-    event.stopPropagation();
-  });
+  this.users = users;
 };
 
 /**
@@ -42,29 +22,49 @@ var MessageView = function (message_log, message_form, messenger) {
  * @param message the message to display.
  */
 MessageView.prototype.append = function (message) {
-  var message_box = document.createElement("li");
-  var header = document.createElement("span");
+  var self = this;
+  var appendMessage = function (username, timestamp, body, colour) {
+    var message_box = document.createElement("li");
+    var header = document.createElement("span");
 
-  var username = document.createElement("h3");
-  username.appendChild(document.createTextNode(message.username));
+    var message_username = document.createElement("h3");
+    message_username.appendChild(document.createTextNode(username));
 
-  var timestamp = document.createElement("h3");
-  timestamp.appendChild(document.createTextNode(message.timestamp));
+    var message_timestamp = document.createElement("h3");
+    message_timestamp.appendChild(document.createTextNode(timestamp));
 
-  var body = document.createElement("p");
-  body.appendChild(document.createTextNode(message.body));
+    var message_body = document.createElement("p");
+    message_body.appendChild(document.createTextNode(body));
 
-  header.appendChild(username);
-  header.appendChild(timestamp);
-  message_box.appendChild(header);
-  message_box.appendChild(body);
+    header.appendChild(message_username);
+    header.appendChild(message_timestamp);
+    message_box.appendChild(header);
+    message_box.appendChild(message_body);
 
-  message_box.classList.add(message.colour);
+    if (colour) message_box.classList.add(colour);
 
-  this.message_log.appendChild(message_box);
+    self.message_log.appendChild(message_box);
 
-  // Scroll to the bottom of the message log.
-  this.message_log.scrollTop = this.message_log.scrollHeight - this.message_log.clientHeight;
+    // Scroll to the bottom of the message log.
+    self.message_log.scrollTop = self.message_log.scrollHeight - self.message_log.clientHeight;
+  };
+
+  switch (message.type) {
+    case MessageType["start_game"]:
+      appendMessage("English draughts", message.timestamp, "The game has started.");
+      break;
+    case MessageType["move"]:
+      appendMessage(getUsername(message, this.users), message.timestamp, move_toString(message.move), message.move.piece.colour);
+      break;
+    case MessageType["message"]:
+      appendMessage(message.player.username, message.timestamp, message.body, message.player.colour);
+      break;
+    case MessageType["game_over"]:
+      appendMessage("English draughts", message.timestamp, gameOver_toString(message));
+      break;
+    default:
+      break;
+  }
 };
 
 /**
@@ -74,4 +74,51 @@ MessageView.prototype.clear = function () {
   while (this.message_log.hasChildNodes()) {
     this.message_log.removeChild(this.message_log.firstChild);
   }
+};
+
+/**
+ * This function returns the stringular representation of the specified move.
+ *
+ * @param move the move to convert to a string.
+ * @return     the stringular representation of the specified move.
+ */
+var move_toString = function (move) {
+  var body = "Moved piece from (" + move.piece.x + ", "
+                                  + move.piece.y + ") to ("
+                                  + move.x       + ", "
+                                  + move.y       + ").";
+  var dx = move.x - move.piece.x;
+  var dy = move.y - move.piece.y;
+  if (dx % 2 == 0) {
+    body += " And took piece at (" + (move.piece.x + (dx / 2)) + ", "
+                                   + (move.piece.y + (dy / 2)) + ").";
+  }
+  return body;
+};
+
+/**
+ * This function returns the stringular representation of the specified game over message.
+ *
+ * @param message the message to convert to a string.
+ * @return        the stringular representation of the specified game over message.
+ */
+var gameOver_toString = function (message) {
+  return message.winner.username + " won the game!";
+};
+
+/**
+ * This function returns the username for the specified move message.
+ *
+ * @param message the move message whose username to return.
+ * @param users   the users in the game.
+ * @return        the username for the specified move message.
+ */
+var getUsername = function (message, users) {
+  var colour = message.move.piece.colour;
+
+  for (var i = 0; i < users.length; i++) {
+    if (users[i].colour === colour) return users[i].username;
+  }
+
+  return "";
 };

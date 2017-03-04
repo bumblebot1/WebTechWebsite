@@ -28,6 +28,10 @@ router.on("message", function (message_str, flags) {
   }
 });
 
+router.on("close", function () {
+  process.exit();
+});
+
 var router_server = new WebSocket.Server({
   host: config.router.host,
   port: config.router.port
@@ -150,7 +154,9 @@ var handleMessageGameOver = function (ws, message) {
   for (var i = 0; i < game.players.length; i++) {
     if (game.players[i].ws != ws)
       game.players[i].ws.send(JSON.stringify(message));
+      game.players[i].ws.close();
   }
 
   games[message.id] = undefined;
+  ws.close();
 };

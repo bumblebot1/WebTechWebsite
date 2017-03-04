@@ -14,15 +14,13 @@ var Player = function () {};
 /**
  * This constructs a new LocalPlayer object.
  *
- * @param message_view     the view to display game messages.
  * @param player_indicator the element which displays the
  *                         current player.
  * @param timer_view       the view to display the time left per move.
  * @param messenger        the messenger with which to send messages.
  */
-var LocalPlayer = function (message_view, player_indicator, timer_view, messenger) {
-  this.moveProvider = null;
-  this.message_view = message_view;
+var LocalPlayer = function (player_indicator, timer_view, messenger) {
+  this.move_provider = null;
   this.player_indicator = player_indicator;
   this.timer_view = timer_view;
   this.messenger = messenger;
@@ -41,8 +39,8 @@ LocalPlayer.prototype.constructor = LocalPlayer;
 LocalPlayer.prototype.notify = function (validMoves, model) {
   var timeOutListener = function () {
     model.gameOver = true;
-    if (model.currentPlayer == Colour["red"]) model.winningPlayer = Colour["white"];
-    else model.winningPlayer = Colour["red"];
+    if (model.currentPlayer.colour == Colour["red"]) model.winningPlayer = model.users[Colour["white"]];
+    else model.winningPlayer = model.users[Colour["red"]];
     model.play(null);
   };
 
@@ -55,12 +53,15 @@ LocalPlayer.prototype.notify = function (validMoves, model) {
 
   var self = this;
   var listener = function (move) {
+
     for (var i = 0; i < validMoves.length; i++) {
       if (validMoves[i].piece == move.piece &&
           validMoves[i].x     == move.x     &&
           validMoves[i].y     == move.y       ) {
-        self.moveProvider.deregisterMoveListener(listener);
-        self.message_view.append(new MessageMessage(model.currentPlayer, messageBody(move)));
+        self.move_provider.deregisterMoveListener(listener);
+
+        self.messenger.send(new MessageMove(model.id, move));
+
         self.timer_view.deregisterListener(timeOutListener);
         self.timer_view.reset(model.time_limit);
         model.play(move);
@@ -68,35 +69,19 @@ LocalPlayer.prototype.notify = function (validMoves, model) {
     }
   };
 
-  this.moveProvider.setSelected(null);
-  this.moveProvider.registerMoveListener(listener);
-
-  var messageBody = function (move) {
-    var body = "Moved piece from (" + move.piece.x + ", "
-                                    + move.piece.y + ") to ("
-                                    + move.x       + ", "
-                                    + move.y       + ").";
-    var dx = move.x - move.piece.x;
-    var dy = move.y - move.piece.y;
-    if (dx % 2 == 0) {
-      body += " And took piece at (" + (move.piece.x + (dx / 2)) + ", "
-                                     + (move.piece.y + (dy / 2)) + ").";
-    }
-    return body;
-  };
+  this.move_provider.setSelected(null);
+  this.move_provider.registerMoveListener(listener);
 };
 
 /**
  * This constructs a new RemotePlayer object.
  *
- * @param message_view     the view to display game messages.
  * @param player_indicator the element which displays the
  *                         current player.
  * @param timer_view       the view to display the time left per move.
  * @param messenger        the messenger with which to send messages.
  */
-var RemotePlayer = function (message_view, player_indicator, timer_view, messenger) {
-  this.message_view = message_view;
+var RemotePlayer = function (player_indicator, timer_view, messenger) {
   this.player_indicator = player_indicator;
   this.timer_view = timer_view;
   this.messenger = messenger;
@@ -115,18 +100,26 @@ RemotePlayer.prototype.constructor = RemotePlayer;
 RemotePlayer.prototype.notify = function (validMoves, model) {
   var timeOutListener = function () {
     model.gameOver = true;
-    if (model.currentPlayer == Colour["red"]) model.winningPlayer = Colour["white"];
-    else model.winningPlayer = Colour["red"];
+    if (model.currentPlayer.colour == Colour["red"]) model.winningPlayer = model.users[Colour["white"]];
+    else model.winningPlayer = model.users[Colour["red"]];
     model.play(null);
   };
 
   // Display the current player.
   this.player_indicator.className = "";
-  this.player_indicator.classList.add("remote", model.currentPlayer);
+  this.player_indicator.classList.add("local", model.currentPlayer.colour);
 
   this.timer_view.registerListener(timeOutListener);
   this.timer_view.start(model.time_limit);
 
-  // When play move, call: self.timer_view.deregisterListener(timeOutListener);
-  //                       self.timer_view.reset(model.time_limit);
+  var self = this;
+  var listener = function (message) {
+    self.messenger.deregisterListener(MessageType["move"], listener);
+
+    self.timer_view.deregisterListener(timeOutListener);
+    self.timer_view.reset(model.time_limit);
+    model.play(message.move);
+  };
+
+  this.messenger.registerListener(MessageType["move"], listener);
 };

@@ -4,9 +4,11 @@
   <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width"/>
+    <meta name="google-signin-client_id" content="845935205653-dl6ulvl06lsmqhshbbf122nc6vducvaf.apps.googleusercontent.com"/>
     <title>English draughts</title>
     <link href="https://fonts.googleapis.com/css?family=Quicksand" type="text/css" rel="stylesheet"/>
     <link href="styles/gv_style.css" type="text/css" rel="stylesheet"/>
+    <script src="https://apis.google.com/js/platform.js" async="async" defer="defer"></script>
     <script type="text/javascript" src="scripts/model/colour.js"></script>
     <script type="text/javascript" src="scripts/model/piece.js"></script>
     <script type="text/javascript" src="scripts/model/move.js"></script>
@@ -17,6 +19,7 @@
     <script type="text/javascript" src="scripts/view/message_view.js"></script>
     <script type="text/javascript" src="scripts/view/board_view.js"></script>
     <script type="text/javascript" src="scripts/view/timer_view.js"></script>
+    <script type="text/javascript" src="scripts/view/form_view.js"></script>
     <script type="text/javascript" src="scripts/gv_main.js"></script>
   </head>
   <body>
@@ -24,8 +27,8 @@
       <img src="resources/logo.png"/>
       <h1>English draughts</h1>
       <h2 id="time_remaining"></h2>
-      <button>Leave Game</button>
-      <button>Logout</button>
+      <button id="leave">Leave Game</button>
+      <button id="logout">Logout</button>
     </header>
 
     <main>

@@ -9,7 +9,7 @@ var next_game_id = 0;
 var waiting_players = [];
 
 var matchmaker_server = new WebSocket.Server({
-  host: "localhost",
+  host: config.matchmaker.host,
   port: config.matchmaker.port
 }, function () {
   console.log("Matchmaker running at", config.matchmaker.address);
@@ -74,9 +74,9 @@ matchmaker_server.on("connection", function (ws) {
  * @param message the message requesting we send the top ten players.
  */
 var handleMessageLeaderboard = function (ws, message) {
-  DBManager.getSortedData(function (data) {
+  DBManager.getSortedData(function (err, data) {
     var leaderboard = []
-    for (var i = 0; i < data.length || i < 10; i++) {
+    for (var i = 0; i < data.length && i < 10; i++) {
       leaderboard.push({
         username: data[i]["Name"],
         score: data[i]["Score"]
@@ -99,6 +99,19 @@ var handleMessageRequestGame = function (ws, message) {
     ws: ws,
     player: message.player
   });
+
+  // Set default score if the player has not got one already.
+  DBManager.getUserWithTokenID(message.player.token_id, function (err, data) {
+    if (data.length <= 0) {
+      DBManager.insertUser({
+        "Token_ID": message.player.token_id,
+        "Name": message.player.username,
+        "Score": 1000
+      });
+    }
+  });
+
+  // Check if we can now create a match.
   checkForMatch();
 };
 
@@ -124,8 +137,8 @@ var handleMessageRegisterRouter = function (ws, message) {
  */
 var handleMessageGameOver = function (ws, message) {
   // Update ELO scores for each player.
-  DBManager.getUserWithTokenID(message.winner.token_id, function (winner_data) {
-    DBManager.getUserWithTokenID(message.loser.token_id, function (loser_data) {
+  DBManager.getUserWithTokenID(message.winner.token_id, function (err1, winner_data) {
+    DBManager.getUserWithTokenID(message.loser.token_id, function (err2, loser_data) {
       if (winner_data.length > 0 && loser_data.length > 0) return;
       var ra = winner_data[0]["Score"], rb = loser_data[0]["Score"];
       var Ra = Math.exp(10, ra / 400), Rb = Math.exp(10, rb / 400);
@@ -158,7 +171,15 @@ var checkForMatch = function () {
 
     var message = new Message.MessageGame(
       next_game_id++,
-      [ waiting_players[0], waiting_players[1] ],
+      [ { colour: waiting_players[0].colour
+        , token_id: waiting_players[0].player.token_id
+        , username: waiting_players[0].player.username
+        },
+        { colour: waiting_players[1].colour
+        , token_id: waiting_players[1].player.token_id
+        , username: waiting_players[1].player.username
+        }
+      ],
       config.matchmaker.round_time,
       router_server.address
     );
@@ -200,8 +221,8 @@ var getRouter = function () {
 var getRandomColours = function () {
   var i = Math.round(Math.random());
   if (i == 0) {
-    return [ Colour["red"], Colour["white"] ];
+    return [ "red", "white" ];
   } else {
-    return [ Colour["white"], Colour["red"] ];
+    return [ "white", "red" ];
   }
 };

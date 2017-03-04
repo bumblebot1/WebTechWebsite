@@ -12,23 +12,23 @@
  */
 var Leaderboard = function (leaderboard, messenger) {
   var self = this;
-  this.leaderboard = leaderboard;
-  messenger.registerListener(MessageType["leaderboard"], displayLeaderboard);
-  messenger.send(new MessageLeaderboard());
-
   var displayLeaderboard = function (message) {
     self.clearRows();
     self.addHeader();
     self.addRows(message.leaderboard);
   };
+
+  this.leaderboard = leaderboard;
+  messenger.registerListener(MessageType["leaderboard"], displayLeaderboard);
+  messenger.send(new MessageLeaderboard());
 };
 
 /**
  * This method clears the leaderboard of rows.
  */
 Leaderboard.prototype.clearRows = function () {
-  while (this.leaderboard.hasChild()) {
-    this.leaderboard.removeChild(this.leaderboard.nextChild());
+  while (this.leaderboard.hasChildNodes()) {
+    this.leaderboard.removeChild(this.leaderboard.firstChild);
   }
 };
 

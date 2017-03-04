@@ -21,7 +21,7 @@ var DatabaseManager = function(name) {
  * and the data fetched.
  */
 DatabaseManager.prototype.getAllData = function(callback) {
-  this.db.all("select * from leaderboard", callback);
+  this.db.all("SELECT * FROM leaderboard", callback);
 }
 
 /**
@@ -33,7 +33,7 @@ DatabaseManager.prototype.getAllData = function(callback) {
  * and the data fetched.
  */
 DatabaseManager.prototype.getSortedData = function(callback) {
-  this.db.all("select * from leaderboard order by Score", callback);
+  this.db.all("SELECT * FROM leaderboard ORDER BY Score", callback);
 };
 
 /**
@@ -81,7 +81,7 @@ DatabaseManager.prototype.updateScore = function(Token_ID, value, callback) {
  * Added only to aid in auto testing.
  */
 DatabaseManager.prototype.deleteAllEntries = function(callback) {
-  this.db.run("Delete from leaderboard", callback);
+  this.db.run("DELETE FROM leaderboard", callback);
 }
 
 module.exports = DatabaseManager;

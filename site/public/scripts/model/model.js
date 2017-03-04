@@ -8,14 +8,14 @@
  * This constructs a new Model for English Draughts. The red
  * player will always start the game.
  *
+ * @param id               the id of the game.
  * @param redPlayer        the Player object for the red player.
  * @param whitePlayer      the Player object for the white player.
- * @param player_indicator the element which displays whose turn it is
- *                         and whether the game is over.
- * @param messenger        the messenger with which to send messages.
  * @param users            the list of users who are playing the game.
+ * @param round_time       the time a user has to make a move per turn.
+ * @param gameOverCallback the function to call when the game is over.
  */
-var Model = function (redPlayer, whitePlayer, player_indicator, messenger, users) {
+var Model = function (id, redPlayer, whitePlayer, users, round_time, gameOverCallback) {
   // This function returns the list of Pieces defining the starting
   // state of the game.
   var initializePieces = function () {
@@ -47,12 +47,12 @@ var Model = function (redPlayer, whitePlayer, player_indicator, messenger, users
     }
   }
 
+  this.id = id;
   this.pieces = initializePieces();
+  this.gameOverCallback = gameOverCallback;
   this.gameOver = false;
   this.winningPlayer = null;
-  this.player_indicator = player_indicator;
-  this.messenger = messenger;
-  this.time_limit = 60000;
+  this.time_limit = round_time;
 };
 
 /**
@@ -60,11 +60,9 @@ var Model = function (redPlayer, whitePlayer, player_indicator, messenger, users
  */
 Model.prototype.turn = function () {
   if (!this.isGameOver()) {
-    this.getPlayerMove(this.validMoves(this.currentPlayer));
+    this.getPlayerMove(this.validMoves(this.currentPlayer.colour));
   } else {
-    this.player_indicator.className = "";
-    this.player_indicator.classList.add("game_over", this.winningPlayer.colour);
-    //TODO: Send game over message via messenger.
+    this.gameOverCallback();
   }
 };
 

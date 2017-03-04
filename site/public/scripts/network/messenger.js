@@ -6,11 +6,32 @@
 
 /**
  * This constructs a new Messenger object.
+ *
+ * @param url          the url to connect to.
+ * @param callback     the function to call once the websocket is connected.
+ * @param message_view the view to display messages in.
  */
-var Messenger = function () {
+var Messenger = function (url, callback, message_view) {
+  var self = this;
+  this.message_view = message_view;
   this.listeners = {};
-  for (var i = 0; i < MessageType.keys; i++) {
-    this.listeners[MessageType.keys[i]] = [];
+
+  if (url != "undefined") {
+    this.ws = new WebSocket(url);
+
+    this.ws.addEventListener("message", function (event) {
+      self.recieve(event.data);
+    });
+
+    this.ws.addEventListener("close", function () {
+      self.close();
+    });
+
+    this.ws.addEventListener("open", function () {
+      callback(self);
+    });
+  } else {
+    callback(this);
   }
 };
 
@@ -18,7 +39,10 @@ var Messenger = function () {
  * This method closes the connection.
  */
 Messenger.prototype.close = function () {
-  //TODO;
+  if (this.ws) {
+    this.ws.close();
+    this.ws = undefined;
+  }
 };
 
 /**
@@ -27,7 +51,8 @@ Messenger.prototype.close = function () {
  * @param message the message to send.
  */
 Messenger.prototype.send = function (message) {
-  //TODO;
+  if (this.ws) this.ws.send(JSON.stringify(message));
+  if (this.message_view) this.message_view.append(message);
 };
 
 /**
@@ -38,7 +63,10 @@ Messenger.prototype.send = function (message) {
 Messenger.prototype.recieve = function (message_string) {
   try {
     var message = JSON.parse(message_string);
+    if (this.message_view) this.message_view.append(message);
+
     var listeners = this.listeners[message.type];
+    if (!listeners) return;
     for (var i = 0; i < listeners.length; i++) {
       listeners[i](message);
     }
@@ -56,6 +84,8 @@ Messenger.prototype.recieve = function (message_string) {
 Messenger.prototype.registerListener = function (message_type, listener) {
   if (this.listeners[message_type])
     this.listeners[message_type].push(listener);
+  else
+    this.listeners[message_type] = [ listener ];
 };
 
 /**
