@@ -24,24 +24,29 @@ var options = {
     cert: fs.readFileSync('site/server/ssl_certs/cert.pem')
 };
 
-start(config.server.http_port, config.server.https_port);
+start();
 
 // Start the http service.  Accept only requests from localhost, for security.
-function start(http_port, https_port) {
+function start() {
     types = defineTypes();
     banned = [];
     banUpperCase("./site/public/", "");
-    http.createServer(handle).listen(http_port, "localhost");
-    console.log("Server running at", config.server.http_address);
     if (config.use_https) {
-      https.createServer(options, handle).listen(https_port, "localhost");
-      console.log("Server running at", config.server.https_address);
+        https.createServer(options, handle).listen(config.server.https_port, config.server.host);
+        console.log("Server running at", config.server.https_address);
+    } else {
+        http.createServer(handle).listen(config.server.http_port, config.server.host);
+        console.log("Server running at", config.server.http_address);
     }
 }
 
 // Serve a request by delivering a file.
 function handle(request, response) {
     var url = request.url.toLowerCase();
+    var question = url.indexOf("?");
+    if (question == -1) question = url.length;
+    url = url.substring(0, question);
+
     if (url.endsWith("/")) url = url + "index.html";
     if (isBanned(url)) return fail(response, NotFound, "URL has been banned");
     var type = findType(url);
@@ -63,7 +68,9 @@ function isBanned(url) {
 // Find the content type to respond with, or undefined.
 function findType(url) {
     var dot = url.lastIndexOf(".");
-    var extension = url.substring(dot + 1);
+    var question = url.indexOf("?");
+    if (question == -1) question = url.length;
+    var extension = url.substring(dot + 1, question);
     return types[extension];
 }
 
@@ -112,7 +119,6 @@ function banUpperCase(root, folder) {
 // the mime module and adapt the list it provides.
 function defineTypes() {
     var types = {
-        //html : "application/xhtml+xml",
         html : "text/html",
         css  : "text/css",
         js   : "application/javascript",

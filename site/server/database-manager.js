@@ -33,7 +33,7 @@ DatabaseManager.prototype.getAllData = function(callback) {
  * and the data fetched.
  */
 DatabaseManager.prototype.getSortedData = function(callback) {
-  this.db.all("SELECT * FROM leaderboard ORDER BY Score", callback);
+  this.db.all("SELECT * FROM leaderboard ORDER BY Score DESC", callback);
 };
 
 /**

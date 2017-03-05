@@ -1,8 +1,7 @@
 # TODO: #
 
-1. Render a crown / second counter for king pieces.
-2. Update server to serve polyglot html5.
-3. localstorage is the same for multiple browser windows, so need to index by token_id.
+1. Update config file access.
+2. Validate html pages.
 
 ## SSL Certificate: ##
 

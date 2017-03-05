@@ -4,8 +4,10 @@
   "description": "",
   "scripts": {
     "start": "gulp start",
+    "start:matchmaker": "gulp start:matchmaker",
+    "start:router": "gulp start:router",
     "test:server": "gulp test:server",
-    "test:client": "gulp test:client"
+    "validate": "gulp validate"
   },
   "repository": {
     "type": "git",
@@ -14,16 +16,18 @@
   "author": "Julian Loscombe & Raul Mihoc",
   "license": "ISC",
   "dependencies": {
+    "google-auth-library": "^0.10.0",
     "gulp": "^3.9.1",
     "gulp-cli": "^1.2.2",
     "gulp-nodemon": "^2.2.1",
     "gulp-open": "^2.0.0",
-    "sqlite3": "^3.1.8"
+    "sqlite3": "^3.1.8",
+    "vnu-jar": "^17.2.1",
+    "ws": "^2.2.0"
   },
   "devDependencies": {
     "gulp-jasmine": "^2.4.2",
     "gulp-watch": "^4.3.11",
-    "jasmine-spec-reporter": "^3.2.0",
-    "ws": "^2.2.0"
+    "jasmine-spec-reporter": "^3.2.0"
   }
 }

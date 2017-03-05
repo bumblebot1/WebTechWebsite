@@ -16,7 +16,7 @@ var Messenger = function (url, callback, message_view) {
   this.message_view = message_view;
   this.listeners = {};
 
-  if (url != "undefined") {
+  if (url && url != "undefined") {
     this.ws = new WebSocket(url);
 
     this.ws.addEventListener("message", function (event) {
@@ -67,6 +67,7 @@ Messenger.prototype.recieve = function (message_string) {
 
     var listeners = this.listeners[message.type];
     if (!listeners) return;
+
     for (var i = 0; i < listeners.length; i++) {
       listeners[i](message);
     }

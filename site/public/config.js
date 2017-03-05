@@ -33,8 +33,7 @@ var config = {
     allFiles: [serverSrc + '/**/*.js'],
     port: 8889,
     address: 'http://localhost:8889'
-  },
-  htmlFiles: ['site/**/*.html']
+  }
 };
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {

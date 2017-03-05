@@ -28,6 +28,12 @@ var BoardView = function (model, canvas) {
   this.selected = null;
   this.listeners = [];
 
+  var king_svg = new Image();
+  king_svg.src = "resources/crown.svg";
+  king_svg.onload = function () {
+    self.king_svg = king_svg;
+  };
+
   window.addEventListener("resize", function () {
     self.canvas.width = 0;
     self.canvas.height = 0;
@@ -138,18 +144,28 @@ BoardView.prototype.draw = function () {
     this.context.closePath();
 
     if (pieces[i].king) {
-      this.context.beginPath();
-      this.context.arc(
-        x_offset + pieces[i].x * x_width + x_width / 2,
-        y_offset + pieces[i].y * y_width + y_width / 2,
-        radius * 0.2,
-        0,
-        2 * Math.PI,
-        false
-      );
-      this.context.fillStyle = this.black;
-      this.context.fill();
-      this.context.closePath();
+      if (this.king_svg) {
+        this.context.drawImage(
+          this.king_svg,
+          x_offset + pieces[i].x * x_width + 0.1 * x_width,
+          y_offset + pieces[i].y * y_width + 0.1 * y_width,
+          0.8 * x_width,
+          0.8 * y_width
+        );
+      } else {
+        this.context.beginPath();
+        this.context.arc(
+          x_offset + pieces[i].x * x_width + x_width / 2,
+          y_offset + pieces[i].y * y_width + y_width / 2,
+          radius * 0.2,
+          0,
+          2 * Math.PI,
+          false
+        );
+        this.context.fillStyle = this.black;
+        this.context.fill();
+        this.context.closePath();
+      }
     }
   }
 };

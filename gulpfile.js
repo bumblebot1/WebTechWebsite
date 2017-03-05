@@ -5,6 +5,8 @@ var jasmine = require('gulp-jasmine');
 var os = require('os');
 var open = require('gulp-open');
 var SpecReporter = require('jasmine-spec-reporter').SpecReporter;
+var execute = require('child_process').exec;
+var vnu = require('vnu-jar');
 
 
 //parameters for starting server and tests
@@ -21,6 +23,8 @@ gulp.task('start:router', startRouter);
 
 gulp.task('test:server', testServer);
 
+gulp.task('validate', validateHtml);
+
 function startServer() {
   var exec = 'node';
 
@@ -29,8 +33,9 @@ function startServer() {
       exec: exec
   });
 
-  gulp.src('')
-      .pipe(open({app: browser, uri: config.server.http_address}));
+  //var address = config.use_https ? config.server.https_address : config.server.http_address;
+  //gulp.src('')
+  //    .pipe(open({app: browser, uri: address}));
 }
 
 function startMatchmaker() {
@@ -67,5 +72,28 @@ function testServer() {
       .pipe(jasmine({
           reporter: new SpecReporter()
       }));
+  });
+}
+
+// TODO: Make this work.
+function validateHtml() {
+  var htmlFiles = config.htmlFiles;
+
+  var chunks = [];
+  var stream = gulp.src(htmlFiles);
+  stream.on("data", function (chunk){
+    chunks.push(chunk);
+  });
+
+  stream.on("end", function () {
+    for (var i = 0; i < chunks.length; i++) {
+      execute(`java -jar ${vnu} --verbose ${chunks[i].path}`, (error, stdout) => {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log(stdout);
+        }
+      });
+    }
   });
 }

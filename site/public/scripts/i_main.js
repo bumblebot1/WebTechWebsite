@@ -4,6 +4,8 @@
  * This file sets up the buttons on the index.html page.
  */
 
+var username, token_id, id;
+
 /**
  * This function is called when the user signs in.
  *
@@ -11,13 +13,10 @@
  */
 var logged_in = function (googleUser) {
   var profile = googleUser.getBasicProfile();
-  localStorage.setItem("username", profile.getName());
-
-  //console.log(profile.getId());
-
-  var token_id = profile.getId();
-  //var token_id = googleUser.getAuthResponse().id_token;
-  localStorage.setItem("token_id", token_id);
+  // Set the username and token_id.
+  username = profile.getName();
+  id = profile.getId();
+  token_id = googleUser.getAuthResponse().id_token;
 
   var buttons = document.getElementById("buttons");
   buttons.classList.remove("disabled");
@@ -29,8 +28,12 @@ var logged_in = function (googleUser) {
 var log_out = function () {
   var auth2 = gapi.auth2.getAuthInstance();
   auth2.signOut().then(function () {
-    localStorage.setItem("username", undefined);
-    localStorage.setItem("token_id", undefined);
+    // Clear the localStorage for the specified user.
+    localStorage.removeItem(id);
+    // Set the username and token_id to undefined.
+    username = undefined;
+    id = undefined;
+    token_id = undefined;
 
     var buttons = document.getElementById("buttons");
     buttons.classList.add("disabled");
@@ -38,7 +41,8 @@ var log_out = function () {
 };
 
 window.addEventListener("load", function () {
-  var messenger = new Messenger("ws://localhost:3001", function () {
+  var address = config.use_https ? config.matchmaker.https_address : config.matchmaker.http_address;
+  var messenger = new Messenger(address, function () {
     var leaderboard = new Leaderboard(document.getElementById("leaderboard"), messenger);
   });
 
@@ -49,30 +53,26 @@ window.addEventListener("load", function () {
   local.addEventListener("click", function () {
     // Set up a local game.
     var users = [
-      { colour: Colour["red"]
-      , token_id: null
-      , username: Colour["red"]
-      },
-      { colour: Colour["white"]
-      , token_id: null
-      , username: Colour["white"]
-      }
+      new User(Colour["red"], null, Colour["red"]),
+      new User(Colour["white"], null, Colour["white"])
     ];
 
-    start_game(-1, "local", users, 60000, undefined, messenger);
+    start_game(-1, "local", users, config.matchmaker.round_time, undefined, messenger);
   });
 
   var remote = document.getElementById("remote");
   remote.addEventListener("click", function () {
+    if (!username || !id || !token_id) return;
     var buttons = document.getElementById("buttons");
     buttons.classList.add("disabled", "game");
 
     messenger.registerListener(MessageType["game"], function (message) {
       start_game(message.id, "remote", message.players, message.round_time, message.router, messenger);
     });
+
     messenger.send(new MessageRequestGame({
-      username: localStorage.getItem("username"),
-      token_id: localStorage.getItem("token_id")
+      username: username,
+      token_id: token_id
     }));
   });
 });
@@ -80,20 +80,25 @@ window.addEventListener("load", function () {
 /**
  * This function starts a new game with the specified options.
  *
- * @param id         the id of the game.
+ * @param game_id    the id of the game.
  * @param type       the type of game.
  * @param users      the users playing the game.
  * @param round_time the time a player has to make a move each turn.
  * @param router     the router to connect to.
  * @param messenger  the messenger currently being used to communicate with the matchmaker.
  */
-var start_game = function (id, type, users, round_time, router, messenger) {
-  localStorage.setItem("id", id);
-  localStorage.setItem("type", type);
-  localStorage.setItem("users", JSON.stringify(users));
-  localStorage.setItem("round_time", round_time);
-  localStorage.setItem("router", router);
+var start_game = function (game_id, type, users, round_time, router, messenger) {
+
+  var params = {
+    game_id: game_id,
+    type: type,
+    users: users,
+    round_time: round_time,
+    router: router
+  };
+
+  localStorage.setItem(id, JSON.stringify(params));
 
   messenger.close();
-  window.location.href = window.location.protocol + "//" + window.location.host + "/game_view.html";
+  window.location.href = window.location.protocol + "//" + window.location.host + "/" + config.game_page + "?" + encodeURIComponent(id);
 };

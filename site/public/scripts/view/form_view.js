@@ -15,11 +15,10 @@ var FormView = function (model, form, messenger) {
   var input = form.querySelector("input[type='text']");
   var submit = form.querySelector("input[type='submit']");
   submit.addEventListener("click", function (event) {
-    var id = localStorage.getItem("id");
     var player = model.currentPlayer;
     var body = input.value;
 
-    var message = new MessageMessage(id, player, body);
+    var message = new MessageMessage(model.id, player, body);
 
     messenger.send(message);
 

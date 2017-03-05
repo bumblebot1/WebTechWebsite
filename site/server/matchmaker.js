@@ -1,20 +1,43 @@
-var WebSocket = require("ws");
-var config = require("../../config.js");
-var Message = require("../public/scripts/network/message.js");
+var WebSocket       = require("ws");
+var fs              = require("fs");
+var http            = require("http");
+var https           = require("https");
+var config          = require("../../config.js");
+var Message         = require("../public/scripts/network/message.js");
 var DatabaseManager = require("./database-manager.js");
-var DBManager = new DatabaseManager("site/server/leaderboard.db");
+var GoogleAuth      = require("google-auth-library");
 
+var CLIENT_ID = "845935205653-dl6ulvl06lsmqhshbbf122nc6vducvaf.apps.googleusercontent.com";
+
+// Set up the client object which enables verification of user ids.
+var auth = new GoogleAuth;
+var client = new auth.OAuth2(CLIENT_ID, "", "");
+var DBManager = new DatabaseManager("site/server/leaderboard.db");
 var routers = {};
 var next_game_id = 0;
 var waiting_players = [];
 
+var options = {
+    key: fs.readFileSync('site/server/ssl_certs/key.pem'),
+    cert: fs.readFileSync('site/server/ssl_certs/cert.pem')
+};
+
+// Create the server to use for websockets, this is to allow secure connections.
+var http_server;
+if (config.use_https) {
+  http_server = https.createServer(options).listen(config.matchmaker.port, config.matchmaker.host);
+  console.log("Matchmaker running at", config.matchmaker.https_address);
+} else {
+  http_server = http.createServer().listen(config.matchmaker.port, config.matchmaker.host);
+  console.log("Matchmaker running at", config.matchmaker.http_address);
+}
+
+// Start the matchmaker websocket server.
 var matchmaker_server = new WebSocket.Server({
-  host: config.matchmaker.host,
-  port: config.matchmaker.port
-}, function () {
-  console.log("Matchmaker running at", config.matchmaker.address);
+  server: http_server
 });
 
+// Listen for new connections to the server.
 matchmaker_server.on("connection", function (ws) {
   ws.on("message", function (message_str, flags) {
     if (flags.binary) return;
@@ -95,24 +118,40 @@ var handleMessageLeaderboard = function (ws, message) {
  * @param message the message requesting a game.
  */
 var handleMessageRequestGame = function (ws, message) {
-  waiting_players.push({
-    ws: ws,
-    player: message.player
-  });
+  var handler = function (e, login) {
+    var payload = login.getPayload();
+    // Get the unique id for the user.
+    var id = payload["sub"];
 
-  // Set default score if the player has not got one already.
-  DBManager.getUserWithTokenID(message.player.token_id, function (err, data) {
-    if (data.length <= 0) {
-      DBManager.insertUser({
-        "Token_ID": message.player.token_id,
-        "Name": message.player.username,
-        "Score": 1000
-      });
-    }
-  });
+    message.player.token_id = id;
 
-  // Check if we can now create a match.
-  checkForMatch();
+    // Add the player to the list of waiting players.
+    waiting_players.push({
+      ws: ws,
+      player: message.player
+    });
+
+    // Set default score if the player has not got one already.
+    DBManager.getUserWithTokenID(id, function (err, data) {
+      if (data.length <= 0) {
+        DBManager.insertUser({
+          "Token_ID": id,
+          "Name": message.player.username,
+          "Score": 1000
+        });
+      }
+    });
+
+    // Check if we can now create a match.
+    checkForMatch();
+  };
+
+  // Verify that the given token_id is valid.
+  client.verifyIdToken(
+    message.player.token_id,
+    CLIENT_ID,
+    handler
+  );
 };
 
 /**
@@ -136,6 +175,10 @@ var handleMessageRegisterRouter = function (ws, message) {
  * @param message the message telling us a game is over.
  */
 var handleMessageGameOver = function (ws, message) {
+  // Reduce the game count for the router.
+  var router_server = getRouterServer(ws);
+  if (router_server) router_server.game_count--;
+
   // Update ELO scores for each player.
   DBManager.getUserWithTokenID(message.winner.token_id, function (err1, winner_data) {
     DBManager.getUserWithTokenID(message.loser.token_id, function (err2, loser_data) {
@@ -164,18 +207,19 @@ var checkForMatch = function () {
   if (keys.length <= 0) return;
   while (waiting_players.length >= 2) {
     var router_server = getRouter();
+    router_server.game_count++;
 
     var colours = getRandomColours();
-    waiting_players[0].colour = colours[0];
-    waiting_players[1].colour = colours[1];
+    waiting_players[0].player.colour = colours[0];
+    waiting_players[1].player.colour = colours[1];
 
     var message = new Message.MessageGame(
       next_game_id++,
-      [ { colour: waiting_players[0].colour
+      [ { colour: waiting_players[0].player.colour
         , token_id: waiting_players[0].player.token_id
         , username: waiting_players[0].player.username
         },
-        { colour: waiting_players[1].colour
+        { colour: waiting_players[1].player.colour
         , token_id: waiting_players[1].player.token_id
         , username: waiting_players[1].player.username
         }
@@ -199,7 +243,7 @@ var checkForMatch = function () {
  */
 var getRouter = function () {
   var keys = Object.keys(routers);
-  if (keys.length < 1) return;
+  if (keys.length < 1) return null;
   var router = routers[keys[0]];
   router.address = keys[0];
 
@@ -211,6 +255,20 @@ var getRouter = function () {
   }
 
   return router;
+};
+
+/**
+ * This function returns the router server connected via the specified websocket.
+ *
+ * @param ws the websocket that the router server is connected via.
+ * @return   the router server connected via the specified websocket.
+ */
+var getRouterServer = function (ws) {
+  var keys = Object.keys(routers);
+  for (var i = 0; i < keys.length; i++) {
+    if (routers[keys[i]].ws == ws) return routers[keys[i]];
+  }
+  return null;
 };
 
 /**

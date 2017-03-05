@@ -1,15 +1,44 @@
 var WebSocket = require("ws");
-var config = require("../../config.js");
-var Message = require("../public/scripts/network/message.js");
+var fs        = require("fs");
+var http      = require("http");
+var https     = require("https");
+var config    = require("../../config.js");
+var Message   = require("../public/scripts/network/message.js");
 
 var games = {};
 
-var router = new WebSocket("ws://" + config.matchmaker.host + ":" + config.matchmaker.port);
+var options = {
+    key: fs.readFileSync('site/server/ssl_certs/key.pem'),
+    cert: fs.readFileSync('site/server/ssl_certs/cert.pem'),
+    rejectUnauthorized: false // Required because we are using a self-signed certificate.
+};
 
+// Create the server to use for websockets, this is to allow secure connections.
+var http_server;
+if (config.use_https) {
+  http_server = https.createServer(options).listen(config.router.port, config.router.host);
+  console.log("Router running at", config.router.https_address);
+} else {
+  http_server = http.createServer().listen(config.router.port, config.router.host);
+  console.log("Router running at", config.router.http_address);
+}
+
+
+// Create a websocket connection between the router and the matchmaker.
+var router;
+if (config.use_https) {
+  router = new WebSocket("wss://" + config.matchmaker.host + ":" + config.matchmaker.port, options);
+} else {
+  router = new WebSocket("ws://" + config.matchmaker.host + ":" + config.matchmaker.port);
+}
+
+// When the websocket is connected, send a register_router message.
 router.on("open", function () {
-  router.send(JSON.stringify(new Message.MessageRegisterRouter(config.router.address)));
+  var address = config.use_https ? config.router.https_address : config.router.http_address;
+  router.send(JSON.stringify(new Message.MessageRegisterRouter(address)));
 });
 
+// Handle messages from the matchmaker.
 router.on("message", function (message_str, flags) {
   if (flags.binary) return;
   try {
@@ -33,10 +62,7 @@ router.on("close", function () {
 });
 
 var router_server = new WebSocket.Server({
-  host: config.router.host,
-  port: config.router.port
-}, function () {
-  console.log("Router running at", config.router.address);
+  server: http_server
 });
 
 router_server.on("connection", function (ws) {
@@ -70,12 +96,14 @@ router_server.on("connection", function (ws) {
   ws.on("close", function () {
     var keys = Object.keys(games);
     for (var i = 0; i < keys.length; i++) {
-      var players = games[keys[i]].players;
+      if (games[keys[i]]) {
+        var players = games[keys[i]].players;
 
-      for (var j = 0; j < players.length; j++) {
-        if (players[j].ws === ws) {
-          var message = new Message.MessageGameOver(keys[i], players[j + 1 % players.length], players[j]);
-          handleMessageGameOver(ws, message);
+        for (var j = 0; j < players.length; j++) {
+          if (players[j].ws === ws) {
+            var message = new Message.MessageGameOver(keys[i], players[j + 1 % players.length], players[j]);
+            handleMessageGameOver(ws, message);
+          }
         }
       }
     }
