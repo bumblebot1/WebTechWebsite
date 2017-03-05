@@ -182,7 +182,8 @@ var handleMessageGameOver = function (ws, message) {
   // Update ELO scores for each player.
   DBManager.getUserWithTokenID(message.winner.token_id, function (err1, winner_data) {
     DBManager.getUserWithTokenID(message.loser.token_id, function (err2, loser_data) {
-      if (winner_data.length > 0 && loser_data.length > 0) return;
+
+      if (winner_data.length <= 0 && loser_data.length <= 0) return;
       var ra = winner_data[0]["Score"], rb = loser_data[0]["Score"];
       var Ra = Math.exp(10, ra / 400), Rb = Math.exp(10, rb / 400);
       var Ea = Ra / (Ra + Rb), Eb = Rb / (Ra + Rb);
@@ -192,9 +193,9 @@ var handleMessageGameOver = function (ws, message) {
       // Updated ELO scores.
       var raa = ra + config.matchmaker.elo_k * (Sa - Ea);
       var rbb = rb + config.matchmaker.elo_k * (Sb - Eb);
-      DBManager.updateScore(message.winner.token_id, raa, function () {
-        DBManager.updateScore(message.loser.token_id, rbb);
-      });
+
+      DBManager.updateScore(message.winner.token_id, raa);
+      DBManager.updateScore(message.loser.token_id, rbb);
     });
   });
 };

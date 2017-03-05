@@ -7,6 +7,7 @@ var open = require('gulp-open');
 var SpecReporter = require('jasmine-spec-reporter').SpecReporter;
 var execute = require('child_process').exec;
 var vnu = require('vnu-jar');
+var DatabaseManager = require('./site/server/database-manager.js');
 
 
 //parameters for starting server and tests
@@ -24,6 +25,8 @@ gulp.task('start:router', startRouter);
 gulp.task('test:server', testServer);
 
 gulp.task('validate', validateHtml);
+
+gulp.task('empty_leaderboard', emptyLeaderboard);
 
 function startServer() {
   var exec = 'node';
@@ -95,5 +98,14 @@ function validateHtml() {
         }
       });
     }
+  });
+}
+
+function emptyLeaderboard() {
+  var manager = new DatabaseManager('site/server/leaderboard.db');
+
+  manager.deleteAllEntries(function (err) {
+    if (err) console.log(err);
+    else console.log('Successfully emptied the leaderboard database.');
   });
 }

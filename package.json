@@ -7,7 +7,8 @@
     "start:matchmaker": "gulp start:matchmaker",
     "start:router": "gulp start:router",
     "test:server": "gulp test:server",
-    "validate": "gulp validate"
+    "validate": "gulp validate",
+    "empty_leaderboard": "gulp empty_leaderboard"
   },
   "repository": {
     "type": "git",
