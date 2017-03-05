@@ -18,6 +18,7 @@ var fs = require("fs");
 var config = require("../../config.js");
 var OK = 200, NotFound = 404, BadType = 415, Error = 500;
 var types, banned;
+var whitelist = config.server.whitelist
 
 var options = {
     key: fs.readFileSync('site/server/ssl_certs/key.pem'),
@@ -46,23 +47,42 @@ function handle(request, response) {
     var question = url.indexOf("?");
     if (question == -1) question = url.length;
     url = url.substring(0, question);
-
+    if (isWhitelisted(url)) {
+        var file = "." + url; //only whitelisted urls get access to root folder
+        return prepareFile(file, response) 
+    }
     if (url.endsWith("/")) url = url + "index.html";
     if (isBanned(url)) return fail(response, NotFound, "URL has been banned");
-    var type = findType(url);
-    if (type == null) return fail(response, BadType, "File type unsupported");
+    
     var file = "./site/public" + url;
+    prepareFile(file, response)
+}
+
+function prepareFile(file, response) {
+    var type = findType(file);
+    if (type == null) return fail(response, BadType, "File type unsupported");
     fs.readFile(file, ready);
     function ready(err, content) { deliver(response, type, err, content); }
 }
 
-// Forbid any resources which shouldn't be delivered to the browser.
-function isBanned(url) {
-    for (var i=0; i<banned.length; i++) {
-        var b = banned[i];
-        if (url.startsWith(b)) return true;
+function isWhitelisted(url) {
+    for (var i=0; i < whitelist.length; i++) {
+        var elem = whitelist[i];
+        if (url === elem) return true;
     }
     return false;
+}
+
+function lookupList(url, list) {
+    for (var i=0; i < list.length; i++) {
+        var elem = list[i];
+        if (url.startsWith(elem)) return true;
+    }
+    return false;
+}
+// Forbid any resources which shouldn't be delivered to the browser.
+function isBanned(url) {
+    return lookupList(url, banned);
 }
 
 // Find the content type to respond with, or undefined.
@@ -76,7 +96,10 @@ function findType(url) {
 
 // Deliver the file that has been read in to the browser.
 function deliver(response, type, err, content) {
-    if (err) return fail(response, NotFound, "File not found");
+    if (err) {
+        console.log(err)
+        return fail(response, NotFound, "File not found");
+    }
     var typeHeader = { "Content-Type": type };
     response.writeHead(OK, typeHeader);
     response.write(content);

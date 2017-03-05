@@ -10,7 +10,8 @@ var config = {
     http_port: 8080,
     https_port: 443,
     http_address: 'http://localhost:8080',
-    https_address: 'http://localhost:443'
+    https_address: 'http://localhost:443',
+    whitelist: ['/config.js'],
   },
   matchmaker: {
     src: 'site/server/matchmaker.js',
