@@ -56,7 +56,10 @@ var routerConnected = function (messenger, user_id, params) {
   var players = getPlayers(user_id, params.users, player_indicator, timer_view, messenger);
   var model = new Model(params.game_id, players.red, players.white, params.users, params.round_time, localGameOverCallback);
   var board = new BoardView(model, document.getElementById("board"));
-  var form = new FormView(model, document.getElementById("message_form"), messenger);
+
+  var id = user_id;
+  if (params.type == "local") id = undefined;
+  var form = new FormView(model, document.getElementById("message_form"), messenger, id);
 
   // Set the move_providers for each of the players.
   players.red.move_provider = board;
