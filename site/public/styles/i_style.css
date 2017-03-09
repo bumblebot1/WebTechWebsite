@@ -98,3 +98,22 @@ button:hover {
 button:active {
   background-color: #454545;
 }
+
+
+/** Pulsating animation for the logo*/
+.pulse {
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2);
+  }
+  70% {
+      box-shadow: 0 0 0 20px rgba(255, 255, 255, 0);
+  }
+  100% {
+      box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
