@@ -54,6 +54,20 @@ var Model = function (id, redPlayer, whitePlayer, users, round_time, gameOverCal
   this.winningPlayer = null;
   this.time_limit = round_time;
 };
+/**
+
+/**
+ * This method registers the callbacks to be called when a move happens in order to
+ * enable the animation of the view.
+ * Both should be called from inside play when a move is updating the model.
+ *
+ * @param setup the callback to be called at the beggining of a move
+ * @param start the callback to be called at the end of the move to start the animation
+ */
+Model.prototype.registerAnimationCallbacks = function(setup, start) {
+  this.setupAnimationCallback = setup;
+  this.startAnimationCallback = start;
+}
 
 /**
  * This method performs a single turn in the game.
@@ -82,6 +96,7 @@ Model.prototype.getPlayerMove = function (moves) {
  */
 Model.prototype.play = function (move) {
   if (this.isGameOver()) return this.turn();
+  this.setupAnimationCallback(move);
   var self = this;
   // This function updates all pieces which have reached the
   // top of the board and are now king pieces.
@@ -140,6 +155,7 @@ Model.prototype.play = function (move) {
     nextPlayer();
     this.turn();
   }
+  this.startAnimationCallback();
 };
 
 /**
