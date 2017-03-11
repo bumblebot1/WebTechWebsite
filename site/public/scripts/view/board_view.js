@@ -27,7 +27,16 @@ var BoardView = function (model, canvas) {
   this.context = canvas.getContext("2d");
   this.selected = null;
   this.listeners = [];
-
+  this.initialPiece = null;
+  this.updatingPiece = null;
+  this.distance = {
+    x: 0,
+    y: 0
+  };
+  this.requestAnimationID = null;
+  this.stop = true;
+  this.start = 0;
+  
   var king_svg = new Image();
   king_svg.src = "resources/crown.svg";
   king_svg.onload = function () {
@@ -46,6 +55,7 @@ var BoardView = function (model, canvas) {
       var piece = model.getPiece(coordinates.x, coordinates.y);
       if (piece) {
         self.setSelected(piece);
+        self.draw();
       } else if (self.selected) {
         emitMoveEvent(new Move(self.selected, coordinates.x, coordinates.y));
         self.setSelected(null);
@@ -54,9 +64,27 @@ var BoardView = function (model, canvas) {
   });
 
   var emitMoveEvent = function (move) {
+    self.initialPiece = self.model.getPiece(move.piece.x, move.piece.y);
+    self.model.getPiece(move.piece.x, move.piece.y);
+    self.distance = {
+      x: move.x - move.piece.x,
+      y: move.y - move.piece.y 
+    }; 
+    self.updatingPiece = {
+      x: move.piece.x,
+      y: move.piece.y,
+      colour: move.piece.colour,
+      king: false
+    }
     for (var i = 0; i < self.listeners.length; i++) {
       self.listeners[i](move);
     }
+    self.updatingPiece.king = self.initialPiece.king;
+    self.requestAnimationID = requestAnimationFrame(function(now){
+      self.start = now * 0.001;
+      self.stop = false;
+      self.Animate(now);
+    });
   };
 };
 
@@ -109,10 +137,11 @@ BoardView.prototype.draw = function () {
 
   // Draw the pieces.
   for (var i = 0; i < pieces.length; i++) {
+    var toDraw = pieces[i] === this.initialPiece ? this.updatingPiece : pieces[i];
     this.context.beginPath();
     this.context.arc(
-      x_offset + pieces[i].x * x_width + x_width / 2 + offset,
-      y_offset + pieces[i].y * y_width + y_width / 2 + offset,
+      x_offset + toDraw.x * x_width + x_width / 2 + offset,
+      y_offset + toDraw.y * y_width + y_width / 2 + offset,
       radius,
       0,
       2 * Math.PI,
@@ -124,39 +153,39 @@ BoardView.prototype.draw = function () {
 
     this.context.beginPath();
     this.context.arc(
-      x_offset + pieces[i].x * x_width + x_width / 2,
-      y_offset + pieces[i].y * y_width + y_width / 2,
+      x_offset + toDraw.x * x_width + x_width / 2,
+      y_offset + toDraw.y * y_width + y_width / 2,
       radius,
       0,
       2 * Math.PI,
       false
     );
     if (this.selected &&
-        pieces[i].x == this.selected.x &&
-        pieces[i].y == this.selected.y) {
-      if (pieces[i].colour === Colour["red"]) this.context.fillStyle = this.red_hightlight;
+        toDraw.x == this.selected.x &&
+        toDraw.y == this.selected.y) {
+      if (toDraw.colour === Colour["red"]) this.context.fillStyle = this.red_hightlight;
       else this.context.fillStyle = this.white_highlight;
     } else {
-      if (pieces[i].colour === Colour["red"]) this.context.fillStyle = this.red;
+      if (toDraw.colour === Colour["red"]) this.context.fillStyle = this.red;
       else this.context.fillStyle = this.white;
     }
     this.context.fill();
     this.context.closePath();
 
-    if (pieces[i].king) {
+    if (toDraw.king) {
       if (this.king_svg) {
         this.context.drawImage(
           this.king_svg,
-          x_offset + pieces[i].x * x_width + 0.1 * x_width,
-          y_offset + pieces[i].y * y_width + 0.1 * y_width,
+          x_offset + toDraw.x * x_width + 0.1 * x_width,
+          y_offset + toDraw.y * y_width + 0.1 * y_width,
           0.8 * x_width,
           0.8 * y_width
         );
       } else {
         this.context.beginPath();
         this.context.arc(
-          x_offset + pieces[i].x * x_width + x_width / 2,
-          y_offset + pieces[i].y * y_width + y_width / 2,
+          x_offset + toDraw.x * x_width + x_width / 2,
+          y_offset + toDraw.y * y_width + y_width / 2,
           radius * 0.2,
           0,
           2 * Math.PI,
@@ -169,6 +198,64 @@ BoardView.prototype.draw = function () {
     }
   }
 };
+
+BoardView.prototype.Animate = function(now) {
+  if(this.requestAnimationID !== null) {
+    now = now * 0.001;
+    var deltaTime = now - this.start;
+    this.start = now;
+    var speed = 0.9;
+    this.updatePieceInView(deltaTime, speed);
+    this.draw();
+    if(!this.stop) {
+      //if animation not finished request another frame
+      var self = this;
+      this.requestAnimationID = requestAnimationFrame(function(time){
+        self.Animate(time);
+      })
+    } else {
+        this.distance = null;
+        this.initialPiece = null;
+        this.updatingPiece = null;
+        window.cancelAnimationFrame(this.requestAnimationID);
+        this.requestAnimationID = null;
+    }
+  }
+}
+
+BoardView.prototype.updatePieceInView = function(deltaTime, speed) {
+  var pieces = this.model.pieces;
+  deltaTime = deltaTime * speed;
+  if(this.updatingPiece.x === this.initialPiece.x && this.updatingPiece.y === this.initialPiece.y) {
+    this.stopAnimation();
+    return;
+  }
+
+  if(this.distance.x > 0) {
+    this.updatingPiece.x = this.updatingPiece.x + deltaTime * (this.distance.x) < this.initialPiece.x 
+                      ? this.updatingPiece.x + deltaTime * (this.distance.x) 
+                      : this.initialPiece.x;
+  } else {
+    this.updatingPiece.x = this.updatingPiece.x + deltaTime * (this.distance.x) > this.initialPiece.x 
+                      ? this.updatingPiece.x + deltaTime * (this.distance.x) 
+                      : this.initialPiece.x;
+  }
+
+  if(this.distance.y > 0) {
+    this.updatingPiece.y = this.updatingPiece.y + deltaTime * (this.distance.y) < this.initialPiece.y 
+                      ? this.updatingPiece.y + deltaTime * (this.distance.y) 
+                      : this.initialPiece.y;
+  } else {
+    this.updatingPiece.y = this.updatingPiece.y + deltaTime * (this.distance.y) > this.initialPiece.y 
+                      ? this.updatingPiece.y + deltaTime * (this.distance.y) 
+                      : this.initialPiece.y;
+  }
+}
+
+BoardView.prototype.stopAnimation = function() {
+  this.stop = true;
+}
+
 
 /**
  * This method returns the position, width and height of the
@@ -228,7 +315,6 @@ BoardView.prototype.getClickCoordinates = function (click) {
  */
 BoardView.prototype.setSelected = function (piece) {
   this.selected = piece;
-  this.draw();
 };
 
 /**
