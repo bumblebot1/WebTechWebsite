@@ -56,6 +56,7 @@ var routerConnected = function (messenger, user_id, params) {
   var players = getPlayers(user_id, params.users, player_indicator, timer_view, messenger);
   var model = new Model(params.game_id, players.red, players.white, params.users, params.round_time, localGameOverCallback);
   var board = new BoardView(model, document.getElementById("board"));
+  model.registerAnimationCallbacks(board.setUpAnimation.bind(board), board.startMoveAnimation.bind(board));
 
   var id = user_id;
   if (params.type == "local") id = undefined;

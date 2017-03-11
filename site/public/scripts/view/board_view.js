@@ -64,29 +64,43 @@ var BoardView = function (model, canvas) {
   });
 
   var emitMoveEvent = function (move) {
-    self.initialPiece = self.model.getPiece(move.piece.x, move.piece.y);
-    self.model.getPiece(move.piece.x, move.piece.y);
-    self.distance = {
-      x: move.x - move.piece.x,
-      y: move.y - move.piece.y 
-    }; 
-    self.updatingPiece = {
-      x: move.piece.x,
-      y: move.piece.y,
-      colour: move.piece.colour,
-      king: false
-    }
     for (var i = 0; i < self.listeners.length; i++) {
       self.listeners[i](move);
     }
-    self.updatingPiece.king = self.initialPiece.king;
-    self.requestAnimationID = requestAnimationFrame(function(now){
-      self.start = now * 0.001;
-      self.stop = false;
-      self.Animate(now);
-    });
   };
 };
+
+/**
+ * This method is the callback that sets up data for a move animation.
+ *
+ * @param move the move to be animated
+ */
+BoardView.prototype.setUpAnimation = function(move) {
+  this.initialPiece = this.model.getPiece(move.piece.x, move.piece.y);
+  this.distance = {
+    x: move.x - move.piece.x,
+    y: move.y - move.piece.y 
+  }; 
+  this.updatingPiece = {
+    x: move.piece.x,
+    y: move.piece.y,
+    colour: this.initialPiece.colour,
+    king: this.initialPiece.king
+  }
+}
+
+/**
+ * This method is is the callback that launches a move animation.
+ */
+BoardView.prototype.startMoveAnimation = function() {
+  this.updatingPiece.king = this.initialPiece.king;
+  var self = this;
+  this.requestAnimationID = requestAnimationFrame(function(now){
+    self.start = now * 0.001;
+    self.stop = false;
+    self.animate(now);
+  });
+}
 
 /**
  * This method clears the canvas.
@@ -118,14 +132,12 @@ BoardView.prototype.draw = function () {
     for (var x = 0; x < this.n_cols; x++) {
       if (white) this.context.fillStyle = this.white;
       else       this.context.fillStyle = this.green;
-
       this.context.fillRect(
         x_offset + x * x_width,
         y_offset + y * y_width,
         x_width,
         y_width
       );
-
       white = !white;
     }
   }
@@ -199,7 +211,12 @@ BoardView.prototype.draw = function () {
   }
 };
 
-BoardView.prototype.Animate = function(now) {
+/**
+ * This method drives the animation by requesting new frames. It also sets the speed of the animation.
+ *
+ * @param now  which is the timestamp of the current frame
+ */
+BoardView.prototype.animate = function(now) {
   if(this.requestAnimationID !== null) {
     now = now * 0.001;
     var deltaTime = now - this.start;
@@ -211,18 +228,25 @@ BoardView.prototype.Animate = function(now) {
       //if animation not finished request another frame
       var self = this;
       this.requestAnimationID = requestAnimationFrame(function(time){
-        self.Animate(time);
+        self.animate(time);
       })
     } else {
-        this.distance = null;
-        this.initialPiece = null;
-        this.updatingPiece = null;
-        window.cancelAnimationFrame(this.requestAnimationID);
-        this.requestAnimationID = null;
+      this.distance = null;
+      this.initialPiece = null;
+      this.updatingPiece = null;
+      window.cancelAnimationFrame(this.requestAnimationID);
+      this.requestAnimationID = null;
     }
   }
 }
 
+/**
+ * This method updates the position of the piece in the view after every frame 
+ * It does so until it the piece reaches its destination at which point it stop the animation.
+ *
+ * @param deltaTime  the time difference between the last frame and this frame
+ * @param speed      the speed of the animation
+ */
 BoardView.prototype.updatePieceInView = function(deltaTime, speed) {
   var pieces = this.model.pieces;
   deltaTime = deltaTime * speed;
@@ -233,25 +257,28 @@ BoardView.prototype.updatePieceInView = function(deltaTime, speed) {
 
   if(this.distance.x > 0) {
     this.updatingPiece.x = this.updatingPiece.x + deltaTime * (this.distance.x) < this.initialPiece.x 
-                      ? this.updatingPiece.x + deltaTime * (this.distance.x) 
-                      : this.initialPiece.x;
+                         ? this.updatingPiece.x + deltaTime * (this.distance.x) 
+                         : this.initialPiece.x;
   } else {
     this.updatingPiece.x = this.updatingPiece.x + deltaTime * (this.distance.x) > this.initialPiece.x 
-                      ? this.updatingPiece.x + deltaTime * (this.distance.x) 
-                      : this.initialPiece.x;
+                         ? this.updatingPiece.x + deltaTime * (this.distance.x) 
+                         : this.initialPiece.x;
   }
 
   if(this.distance.y > 0) {
     this.updatingPiece.y = this.updatingPiece.y + deltaTime * (this.distance.y) < this.initialPiece.y 
-                      ? this.updatingPiece.y + deltaTime * (this.distance.y) 
-                      : this.initialPiece.y;
+                         ? this.updatingPiece.y + deltaTime * (this.distance.y) 
+                         : this.initialPiece.y;
   } else {
     this.updatingPiece.y = this.updatingPiece.y + deltaTime * (this.distance.y) > this.initialPiece.y 
-                      ? this.updatingPiece.y + deltaTime * (this.distance.y) 
-                      : this.initialPiece.y;
+                         ? this.updatingPiece.y + deltaTime * (this.distance.y) 
+                         : this.initialPiece.y;
   }
 }
 
+/**
+ * This method sets the flag that stops the animation that is currently in progress
+ */
 BoardView.prototype.stopAnimation = function() {
   this.stop = true;
 }
