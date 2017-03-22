@@ -3,7 +3,9 @@ var serverSrc = 'site/server';
 var config = {
   debug: true,
   use_https: true,
+  index_page: 'index.html',
   game_page: 'game_view.html',
+  tutorial_page: 'tutorial.html',
   server: {
     src: serverSrc + '/server.js',
     host: 'localhost',

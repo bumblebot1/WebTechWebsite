@@ -37,36 +37,9 @@ section img:hover{
   cursor: pointer;
 }
 
-section div:first-of-type {
-  margin: 0px auto 24px auto;
-}
-
-section span * {
-  display: inline-block;
-}
-
 section h1:first-of-type {
   font-size: 2em;
   margin: 0px 0px 24px 0px;
-}
-
-/** Leaderboard Styling **/
-table {
-  margin: auto;
-  border-collapse: separate;
-  border-spacing: 16px 0px;
-}
-
-tr td:nth-child(1), tr th:nth-child(1) {
-  text-align: start;
-}
-
-tr td:nth-child(2), tr th:nth-child(2) {
-  text-align: center;
-}
-
-tr td:nth-child(3), tr th:nth-child(3) {
-  text-align: end;
 }
 
 /** Pulsating animation for the logo*/
@@ -85,4 +58,13 @@ tr td:nth-child(3), tr th:nth-child(3) {
   100% {
       box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
   }
+}
+
+li{
+  margin-bottom: 30px;
+}
+
+.smaller-image{
+  width: 200px;
+  height: auto;
 }
