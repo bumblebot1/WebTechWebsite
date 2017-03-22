@@ -46,6 +46,11 @@ window.addEventListener("load", function () {
     var leaderboard = new Leaderboard(document.getElementById("leaderboard"), messenger);
   });
 
+  var tutorial = document.getElementById("tutorial");
+  tutorial.addEventListener("click", function() {
+    window.location.href = window.location.protocol + "//" + window.location.host + "/" + config.tutorial_page;
+  });
+  
   var logout = document.getElementById("logout");
   logout.addEventListener("click", log_out);
 
