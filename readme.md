@@ -1,11 +1,3 @@
-# TODO/Questions: #
-
-1. Check the comments in the report.tex file.
-2. Have a look on the report: check if styling is ok etc.
-3. Could you fill the SVG section with the exact topics covered please? Also if you have some ideas for the depth and dynamic pages ones or if you spot anything I missed feel free to add to these.
-4. There was one more thing regarding XHTML delivery: At the moment, we only send pages with content type text/html; shall I add the application/xhtml+xml approach he discussed in the slides as well?
-
-
 ## SSL Certificate: ##
 
 Generated using this guide: https://docs.nodejitsu.com/articles/HTTP/servers/how-to-create-a-HTTPS-server/

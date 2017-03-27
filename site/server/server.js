@@ -44,22 +44,24 @@ function start() {
 // Serve a request by delivering a file.
 function handle(request, response) {
     var url = request.url.toLowerCase();
+    var accept = request.headers.accept;
+    var supportXHTML = accept.indexOf(types.xhtml) !== -1;
     var question = url.indexOf("?");
     if (question == -1) question = url.length;
     url = url.substring(0, question);
     if (isWhitelisted(url)) {
         var file = "." + url; //only whitelisted urls get access to root folder
-        return prepareFile(file, response) 
+        return prepareFile(file, supportXHTML, response);
     }
     if (url.endsWith("/")) url = url + "index.html";
     if (isBanned(url)) return fail(response, NotFound, "URL has been banned");
-    
+
     var file = "./site/public" + url;
-    prepareFile(file, response)
+    prepareFile(file, supportXHTML, response);
 }
 
-function prepareFile(file, response) {
-    var type = findType(file);
+function prepareFile(file, supportXHTML, response) {
+    var type = findType(file, supportXHTML);
     if (type == null) return fail(response, BadType, "File type unsupported");
     fs.readFile(file, ready);
     function ready(err, content) { deliver(response, type, err, content); }
@@ -86,12 +88,15 @@ function isBanned(url) {
 }
 
 // Find the content type to respond with, or undefined.
-function findType(url) {
+function findType(url, supportXHTML) {
     var dot = url.lastIndexOf(".");
     var question = url.indexOf("?");
     if (question == -1) question = url.length;
     var extension = url.substring(dot + 1, question);
-    return types[extension];
+    var type = types[extension];
+    var index_page = url.indexOf("index.html") !== -1;
+    if (type === types.html && supportXHTML && !index_page) return types.xhtml;
+    else return type;
 }
 
 // Deliver the file that has been read in to the browser.
@@ -160,7 +165,7 @@ function defineTypes() {
         mp4  : "video/mp4",
         webm : "video/webm",
         ico  : "image/x-icon", // just for favicon.ico
-        xhtml: undefined,      // non-standard, use .html
+        xhtml: "application/xhtml+xml",      // non-standard, use .html
         htm  : undefined,      // non-standard, use .html
         rar  : undefined,      // non-standard, platform dependent, use .zip
         doc  : undefined,      // non-standard, platform dependent, use .pdf
